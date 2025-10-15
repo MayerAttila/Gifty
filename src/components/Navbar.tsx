@@ -1,62 +1,73 @@
 import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { FiMenu, FiX } from "react-icons/fi";
 import ThemeToggle from "./ui/ThemeToggle";
 
 const navLinks = [
-  { href: "#", label: "Home" },
-  { href: "#", label: "Features" },
-  { href: "#", label: "Pricing" },
-  { href: "#", label: "Contact" },
+  { to: "/", label: "Home" },
+  { to: "/features", label: "Features" },
+  { to: "/pricing", label: "Pricing" },
+  { to: "/contact", label: "Contact" },
 ];
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const desktopLinkClass = ({ isActive }: { isActive: boolean }) =>
+    [
+      "transition-colors hover:text-amber-600 dark:hover:text-amber-400",
+      isActive ? "text-amber-600 dark:text-amber-300" : undefined,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+  const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
+    [
+      "rounded-md px-3 py-2 transition hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-slate-800 dark:hover:text-amber-300",
+      isActive
+        ? "bg-amber-50 text-amber-600 dark:bg-slate-800/70 dark:text-amber-300"
+        : undefined,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
   return (
     <>
       <header className="bg-white shadow-sm dark:bg-slate-900">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <a
-            href="#"
+          <Link
+            to="/"
             className="text-lg font-semibold text-amber-600 dark:text-amber-400"
           >
             Gifty
-          </a>
+          </Link>
           <div className="hidden items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300 sm:flex">
             {navLinks.map((link) => (
-              <a
+              <NavLink
                 key={link.label}
-                href={link.href}
-                className="transition-colors hover:text-amber-600 dark:hover:text-amber-400"
+                to={link.to}
+                className={desktopLinkClass}
+                end={link.to === "/"}
               >
                 {link.label}
-              </a>
+              </NavLink>
             ))}
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <button className="hidden rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow transition-transform hover:-translate-y-0.5 hover:shadow-md sm:inline-flex">
-              Get Started
-            </button>
+            <Link
+              to="/pricing"
+              className="hidden rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow transition-transform hover:-translate-y-0.5 hover:shadow-md sm:inline-flex"
+            >
+              View Pricing
+            </Link>
             <button
               type="button"
               className="inline-flex items-center justify-center rounded-md p-2 text-slate-600 transition hover:bg-amber-50 hover:text-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-amber-300 sm:hidden"
               onClick={() => setIsMenuOpen(true)}
               aria-label="Open menu"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="h-6 w-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              <FiMenu className="h-6 w-6" />
             </button>
           </div>
         </nav>
@@ -80,37 +91,29 @@ const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
                 aria-label="Close menu"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  className="h-5 w-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <FiX className="h-5 w-5" />
               </button>
             </div>
             <nav className="flex flex-1 flex-col gap-4 px-4 py-6 text-sm font-medium text-slate-700 dark:text-slate-200">
               {navLinks.map((link) => (
-                <a
+                <NavLink
                   key={link.label}
-                  href={link.href}
-                  className="rounded-md px-3 py-2 transition hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-slate-800 dark:hover:text-amber-300"
+                  to={link.to}
+                  className={mobileLinkClass}
                   onClick={() => setIsMenuOpen(false)}
+                  end={link.to === "/"}
                 >
                   {link.label}
-                </a>
+                </NavLink>
               ))}
               <ThemeToggle variant="menu" />
-              <button className="mt-auto rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow transition-transform hover:-translate-y-0.5 hover:shadow-md dark:bg-amber-500/90">
-                Get Started
-              </button>
+              <Link
+                to="/pricing"
+                className="mt-auto rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow transition-transform hover:-translate-y-0.5 hover:shadow-md dark:bg-amber-500/90"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                View Pricing
+              </Link>
             </nav>
           </div>
         </div>
