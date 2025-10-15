@@ -1,9 +1,14 @@
+import Navbar from "./components/Navbar";
+
 function App() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold underline bg-amber-500">
-        Hello world!
-      </h1>
+    <div className="min-h-screen bg-slate-50">
+      <Navbar />
+      <main className="mx-auto max-w-5xl px-4 py-10">
+        <h1 className="rounded-lg bg-amber-500 px-6 py-4 text-3xl font-bold text-white shadow">
+          Hello world!
+        </h1>
+      </main>
     </div>
   );
 }
