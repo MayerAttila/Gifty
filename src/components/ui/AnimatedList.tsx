@@ -64,6 +64,7 @@ interface AnimatedListProps<T = string> {
   itemClassName?: string;
   displayScrollbar?: boolean;
   initialSelectedIndex?: number;
+  scrollContainerClassName?: string;
 }
 
 const AnimatedList = <T,>({
@@ -77,6 +78,7 @@ const AnimatedList = <T,>({
   itemClassName = "",
   displayScrollbar = false,
   initialSelectedIndex = -1,
+  scrollContainerClassName = "max-h-[400px]",
 }: AnimatedListProps<T>) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] =
@@ -167,7 +169,7 @@ const AnimatedList = <T,>({
     <div className={`relative mx-auto w-full  ${className}`}>
       <div
         ref={listRef}
-        className={`max-h-[400px] overflow-y-auto rounded-xl bg-[#060010]/60 p-3 sm:p-4 ${
+        className={`${scrollContainerClassName} overflow-y-auto rounded-xl bg-[#060010]/60 p-3 sm:p-4 ${
           displayScrollbar
             ? "[&::-webkit-scrollbar]:w-[8px] [&::-webkit-scrollbar-track]:bg-[#060010] [&::-webkit-scrollbar-thumb]:bg-[#222] [&::-webkit-scrollbar-thumb]:rounded-[4px]"
             : "scrollbar-hide"

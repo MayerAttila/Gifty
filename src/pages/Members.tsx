@@ -86,7 +86,7 @@ const Members = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-6 ">
+      <div className="flex flex-col gap-2">
         <AnimatedList<Member>
           items={members}
           getItemKey={(member) => member.id}
@@ -106,6 +106,7 @@ const Members = () => {
             console.log("Selected member:", member);
           }}
           className="w-full"
+          scrollContainerClassName="min-h-[22rem] max-h-[68vh] sm:max-h-[72vh] lg:max-h-[78vh] 2xl:max-h-[82vh]"
         />
         <button
           onClick={() => {
