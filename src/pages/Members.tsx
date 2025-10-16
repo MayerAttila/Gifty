@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import AnimatedList from "../components/ui/AnimatedList";
 import MemberCard, { type Member } from "../components/ui/MemberCard";
+import AddMemberPanel, {
+  type AddMemberFormValues,
+} from "../components/ui/AddMemberPanel";
 
 const dummieMembers = [
   { id: 1, name: "John Doe", gender: "Male", age: 30, birthday: "1993-01-15" },
@@ -50,6 +53,14 @@ const dummieMembers = [
 
 const Members = () => {
   const [members, setMembers] = useState<Member[]>(dummieMembers);
+  const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+
+  const nextMemberId = useMemo(() => {
+    if (!members.length) {
+      return 1;
+    }
+    return Math.max(...members.map((member) => member.id)) + 1;
+  }, [members]);
 
   const handleDeleteMember = (id: number) => {
     setMembers((prev) => prev.filter((member) => member.id !== id));
@@ -59,37 +70,58 @@ const Members = () => {
     console.log("Edit member:", member);
   };
 
+  const handleAddMember = useCallback(
+    (data: AddMemberFormValues) => {
+      setMembers((prev) => [
+        ...prev,
+        {
+          id: nextMemberId,
+          ...data,
+        },
+      ]);
+      setIsAddMemberOpen(false);
+    },
+    [nextMemberId]
+  );
+
   return (
-    <div className="flex flex-col gap-6 ">
-      <AnimatedList<Member>
-        items={members}
-        getItemKey={(member) => member.id}
-        renderItem={(member, _index, isSelected) => (
-          <MemberCard
-            {...member}
-            className={`${
-              isSelected
-                ? "border-emerald-400 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-900/20"
-                : ""
-            }`}
-            onDelete={() => handleDeleteMember(member.id)}
-            onEdit={() => handleEditMember(member)}
-          />
-        )}
-        onItemSelect={(member) => {
-          console.log("Selected member:", member);
-        }}
-        className="w-full"
+    <>
+      <div className="flex flex-col gap-6 ">
+        <AnimatedList<Member>
+          items={members}
+          getItemKey={(member) => member.id}
+          renderItem={(member, _index, isSelected) => (
+            <MemberCard
+              {...member}
+              className={`${
+                isSelected
+                  ? "border-emerald-400 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-900/20"
+                  : ""
+              }`}
+              onDelete={() => handleDeleteMember(member.id)}
+              onEdit={() => handleEditMember(member)}
+            />
+          )}
+          onItemSelect={(member) => {
+            console.log("Selected member:", member);
+          }}
+          className="w-full"
+        />
+        <button
+          onClick={() => {
+            setIsAddMemberOpen(true);
+          }}
+          className="m-3 rounded-xl border-2 border-green-400 bg-green-300 p-3 text-center font-bold dark:border-green-600 dark:bg-green-900"
+        >
+          Add Member
+        </button>
+      </div>
+      <AddMemberPanel
+        open={isAddMemberOpen}
+        onClose={() => setIsAddMemberOpen(false)}
+        onSubmit={handleAddMember}
       />
-      <button
-        onClick={() => {
-          console.log("btn clicked");
-        }}
-        className="bg-green-300 border-2 border-green-400 p-3 rounded-xl m-3 text-center font-bold dark:bg-green-900 dark:border-green-600"
-      >
-        Add Member
-      </button>
-    </div>
+    </>
   );
 };
 

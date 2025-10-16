@@ -30,7 +30,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
   const [activeAction, setActiveAction] = useState<"delete" | "edit" | null>(
     null
   );
-  const ACTION_OFFSET = 40;
+  const ACTION_OFFSET = 80;
   const SWIPE_THRESHOLD = 30;
 
   const resetPosition = useCallback(() => {
@@ -162,7 +162,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
             resetPosition();
           }
         }}
-        whileTap={{ scale: 0.98 }}
+        whileTap={{ scale: 1.03 }}
         className={`relative z-10 w-full rounded-xl border border-transparent bg-white p-4 shadow-md transition-[background-color,border-color] duration-200 dark:bg-slate-800 dark:shadow-lg ${className}`}
       >
         <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
