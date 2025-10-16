@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
+import type { MemberType } from "./AddMemberPanel";
 
 type Member = {
   id: number;
@@ -8,6 +9,10 @@ type Member = {
   gender: string;
   age: number;
   birthday: string;
+  memberType: MemberType;
+  relationship?: string;
+  connectedSince?: string;
+  preferences?: string;
 };
 
 interface MemberCardProps extends Member {
@@ -21,6 +26,10 @@ const MemberCard: React.FC<MemberCardProps> = ({
   gender,
   age,
   birthday,
+  memberType,
+  relationship,
+  connectedSince,
+  preferences,
   className = "",
   onDelete,
   onEdit,
@@ -105,6 +114,23 @@ const MemberCard: React.FC<MemberCardProps> = ({
     [onEdit, resetPosition]
   );
 
+  const formattedBirthday = useCallback(() => {
+    const date = new Date(`${birthday}T00:00:00`);
+    if (Number.isNaN(date.getTime())) {
+      return birthday;
+    }
+    return date.toLocaleDateString();
+  }, [birthday]);
+
+  const formattedConnectedSince = useCallback(() => {
+    if (!connectedSince) return null;
+    const date = new Date(`${connectedSince}T00:00:00`);
+    if (Number.isNaN(date.getTime())) {
+      return connectedSince;
+    }
+    return date.toLocaleDateString();
+  }, [connectedSince]);
+
   return (
     <div className="relative w-full select-none overflow-hidden rounded-xl">
       <div
@@ -169,11 +195,25 @@ const MemberCard: React.FC<MemberCardProps> = ({
           {name}
         </h2>
         <p className="text-sm text-slate-600 dark:text-slate-400">
+          {memberType.charAt(0).toUpperCase() + memberType.slice(1)}
+          {relationship ? ` · ${relationship}` : ""}
+        </p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           Gender: {gender} | Age: {age}
         </p>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Birthday: {new Date(birthday).toLocaleDateString()}
+          Birthday: {formattedBirthday()}
         </p>
+        {formattedConnectedSince() && (
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Connected since: {formattedConnectedSince()}
+          </p>
+        )}
+        {preferences && (
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            Likes: {preferences}
+          </p>
+        )}
       </motion.div>
     </div>
   );

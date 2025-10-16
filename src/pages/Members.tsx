@@ -1,18 +1,32 @@
-import React, { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import AnimatedList from "../components/ui/AnimatedList";
 import MemberCard, { type Member } from "../components/ui/MemberCard";
 import AddMemberPanel, {
   type AddMemberFormValues,
 } from "../components/ui/AddMemberPanel";
 
-const dummieMembers = [
-  { id: 1, name: "John Doe", gender: "Male", age: 30, birthday: "1993-01-15" },
+const dummieMembers: Member[] = [
+  {
+    id: 1,
+    name: "John Doe",
+    gender: "Male",
+    age: 30,
+    birthday: "1993-01-15",
+    memberType: "friend",
+    relationship: "College roommate",
+    connectedSince: "2011-09-01",
+    preferences: "Single-origin coffee, weekend hikes",
+  },
   {
     id: 2,
     name: "Jane Smith",
     gender: "Female",
     age: 25,
     birthday: "1998-05-22",
+    memberType: "family",
+    relationship: "Younger sister",
+    connectedSince: "1998-05-22",
+    preferences: "Art museum passes, cozy sweaters",
   },
   {
     id: 3,
@@ -20,6 +34,10 @@ const dummieMembers = [
     gender: "Female",
     age: 28,
     birthday: "1995-03-10",
+    memberType: "coworker",
+    relationship: "Design partner",
+    connectedSince: "2020-02-01",
+    preferences: "Stationery sets, matcha treats",
   },
   {
     id: 4,
@@ -27,6 +45,10 @@ const dummieMembers = [
     gender: "Male",
     age: 35,
     birthday: "1988-07-30",
+    memberType: "family",
+    relationship: "Older cousin",
+    connectedSince: "1988-07-30",
+    preferences: "BBQ gadgets, vinyl records",
   },
   {
     id: 5,
@@ -34,6 +56,10 @@ const dummieMembers = [
     gender: "Male",
     age: 32,
     birthday: "1991-11-12",
+    memberType: "friend",
+    relationship: "Running buddy",
+    connectedSince: "2018-04-15",
+    preferences: "Trail gear, smart home tech",
   },
   {
     id: 6,
@@ -41,6 +67,10 @@ const dummieMembers = [
     gender: "Female",
     age: 27,
     birthday: "1996-09-05",
+    memberType: "other",
+    relationship: "Neighbor",
+    connectedSince: "2021-06-10",
+    preferences: "Indoor plants, indie novels",
   },
   {
     id: 7,
@@ -48,6 +78,10 @@ const dummieMembers = [
     gender: "Male",
     age: 29,
     birthday: "1994-12-20",
+    memberType: "coworker",
+    relationship: "Product manager",
+    connectedSince: "2019-01-07",
+    preferences: "Specialty teas, board games",
   },
 ];
 
@@ -86,7 +120,7 @@ const Members = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-6">
         <AnimatedList<Member>
           items={members}
           getItemKey={(member) => member.id}
