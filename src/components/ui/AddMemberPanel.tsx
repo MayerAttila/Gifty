@@ -8,19 +8,17 @@ import React, {
 import { AnimatePresence, motion } from "motion/react";
 import { FiCheck, FiCircle, FiDisc, FiX } from "react-icons/fi";
 import Stepper, { Step } from "./Stepper";
+import type {
+  AddMemberFormValues,
+  FormState,
+  MemberType,
+} from "./AddMemberTypes";
+import BaseInfoStep from "./steps/BaseInfoStep";
+import LikingsStep from "./steps/LikingsStep";
+import SpecialDatesStep from "./steps/SpecialDatesStep";
+// import of date util not needed here
 
-type MemberType = "family" | "friend" | "coworker" | "other";
-
-type AddMemberFormValues = {
-  name: string;
-  gender: string;
-  age: number;
-  birthday: string;
-  memberType: MemberType;
-  relationship?: string;
-  connectedSince?: string;
-  preferences?: string;
-};
+// Types moved to AddMemberTypes
 
 interface AddMemberPanelProps {
   open: boolean;
@@ -28,16 +26,7 @@ interface AddMemberPanelProps {
   onSubmit: (values: AddMemberFormValues) => void;
 }
 
-type FormState = {
-  name: string;
-  gender: string;
-  age: string;
-  birthday: string;
-  memberType: MemberType;
-  relationship: string;
-  connectedSince: string;
-  preferences: string;
-};
+// FormState type imported from AddMemberTypes
 
 const emptyFormState: FormState = {
   name: "",
@@ -48,14 +37,13 @@ const emptyFormState: FormState = {
   relationship: "",
   connectedSince: "",
   preferences: "",
+  specialDates: [],
 };
 
 const stepDescriptors = [
-  { title: "Option", subtitle: "Choose how you're connected." },
-  { title: "Details", subtitle: "Tell us about the member." },
-  { title: "Connected", subtitle: "Capture your relationship." },
-  { title: "Dates", subtitle: "Never miss an important moment." },
-  { title: "Liking", subtitle: "Personal touches for gifting." },
+  { title: "Base Info", subtitle: "Basics + how you're connected." },
+  { title: "Likings", subtitle: "Interests and gift ideas." },
+  { title: "Special Dates", subtitle: "Birthdays, namedays, anniversaries." },
 ] as const;
 
 const memberTypeOptions: Array<{
@@ -85,14 +73,7 @@ const memberTypeOptions: Array<{
   },
 ];
 
-const formatDateForDisplay = (value: string) => {
-  if (!value) return "";
-  const parsed = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-  return parsed.toLocaleDateString();
-};
+// Date formatter imported from utils/date
 
 const StepBadge: React.FC<{
   step: number;
@@ -167,35 +148,25 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
     if (!formState.name.trim()) return false;
     if (!formState.gender.trim()) return false;
     if (!isAgeValid) return false;
-    return Boolean(formState.birthday);
-  }, [formState.name, formState.gender, formState.birthday, isAgeValid]);
+    return true;
+  }, [formState.name, formState.gender, isAgeValid]);
 
   const isStepReady = useMemo(() => {
     switch (activeStep) {
       case 1:
-        return Boolean(formState.memberType);
-      case 2:
         return (
           Boolean(formState.name.trim()) &&
           Boolean(formState.gender.trim()) &&
           isAgeValid
         );
-      case 4:
-        return Boolean(formState.birthday);
-      case 5:
-        return canSubmit;
+      case 2:
+        return true;
+      case 3:
+        return true;
       default:
         return true;
     }
-  }, [
-    activeStep,
-    formState.memberType,
-    formState.name,
-    formState.gender,
-    formState.birthday,
-    isAgeValid,
-    canSubmit,
-  ]);
+  }, [activeStep, formState.name, formState.gender, isAgeValid]);
 
   const nextButtonText =
     activeStep === totalSteps ? "Create Member" : "Continue";
@@ -239,6 +210,8 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
       preferences: formState.preferences.trim()
         ? formState.preferences.trim()
         : undefined,
+      specialDates:
+        formState.specialDates.length > 0 ? formState.specialDates : undefined,
     };
 
     onSubmit(payload);
@@ -251,19 +224,14 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
     formState.relationship,
     formState.connectedSince,
     formState.preferences,
+    formState.specialDates,
     parsedAge,
     onSubmit,
     totalSteps,
   ]);
 
-  const birthdayPreview = useMemo(
-    () => formatDateForDisplay(formState.birthday),
-    [formState.birthday]
-  );
-  const connectedPreview = useMemo(
-    () => formatDateForDisplay(formState.connectedSince),
-    [formState.connectedSince]
-  );
+  // previews moved out of LikingsStep; not needed here
+  // removed nameday/anniversary previews; dates are handled dynamically
 
   return (
     <AnimatePresence>
@@ -338,36 +306,62 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
               )}
             >
               <Step>
-                <OptionStep
-                  memberType={formState.memberType}
-                  onSelectType={handleMemberTypeSelect}
-                />
-              </Step>
-              <Step>
-                <DetailsStep
+                <BaseInfoStep
                   formState={formState}
                   onFieldChange={handleFieldChange}
                   isAgeValid={isAgeValid}
+                  onSelectRelationship={(rel) => {
+                    setFormState((prev) => ({
+                      ...prev,
+                      relationship: rel,
+                      memberType:
+                        rel.toLowerCase() === "family"
+                          ? "family"
+                          : prev.memberType,
+                    }));
+                  }}
                 />
               </Step>
               <Step>
-                <ConnectedStep
+                <LikingsStep
                   formState={formState}
                   onFieldChange={handleFieldChange}
+                  onToggleLike={(like) => {
+                    setFormState((prev) => {
+                      const current = prev.preferences
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean);
+                      const exists = current
+                        .map((s) => s.toLowerCase())
+                        .includes(like.toLowerCase());
+                      const next = exists
+                        ? current.filter(
+                            (s) => s.toLowerCase() !== like.toLowerCase()
+                          )
+                        : [...current, like];
+                      return { ...prev, preferences: next.join(", ") };
+                    });
+                  }}
                 />
               </Step>
               <Step>
-                <DatesStep
-                  birthday={formState.birthday}
-                  onFieldChange={handleFieldChange}
-                />
-              </Step>
-              <Step>
-                <LikingStep
+                <SpecialDatesStep
                   formState={formState}
-                  onFieldChange={handleFieldChange}
-                  birthdayPreview={birthdayPreview}
-                  connectedPreview={connectedPreview}
+                  onAddDate={(entry) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      specialDates: [...prev.specialDates, entry],
+                    }))
+                  }
+                  onRemoveDate={(index) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      specialDates: prev.specialDates.filter(
+                        (_, i) => i !== index
+                      ),
+                    }))
+                  }
                 />
               </Step>
             </Stepper>
@@ -378,315 +372,5 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
   );
 };
 
-export type { AddMemberFormValues, AddMemberPanelProps, MemberType };
+export type { AddMemberPanelProps };
 export default AddMemberPanel;
-
-interface OptionStepProps {
-  memberType: MemberType;
-  onSelectType: (type: MemberType) => void;
-}
-
-const OptionStep: React.FC<OptionStepProps> = ({
-  memberType,
-  onSelectType,
-}) => {
-  return (
-    <div className="flex flex-col gap-4 py-4">
-      <div>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Choose how you're connected
-        </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-300">
-          This helps group reminders and gifting ideas later.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {memberTypeOptions.map((option) => {
-          const isSelected = option.value === memberType;
-          return (
-            <button
-              type="button"
-              key={option.value}
-              onClick={() => onSelectType(option.value)}
-              className={`rounded-2xl border p-4 text-left transition ${
-                isSelected
-                  ? "border-emerald-400 bg-emerald-50 shadow-lg shadow-emerald-200/50 dark:border-emerald-600 dark:bg-emerald-900/30"
-                  : "border-slate-200 bg-white hover:border-emerald-200 hover:bg-emerald-50/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-emerald-700"
-              }`}
-            >
-              <span className="block text-base font-semibold text-slate-800 dark:text-slate-100">
-                {option.label}
-              </span>
-              <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
-                {option.helper}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-interface DetailsStepProps {
-  formState: FormState;
-  onFieldChange: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
-  isAgeValid: boolean;
-}
-
-const DetailsStep: React.FC<DetailsStepProps> = ({
-  formState,
-  onFieldChange,
-  isAgeValid,
-}) => {
-  return (
-    <div className="flex flex-col gap-4 py-4">
-      <div>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Member details
-        </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-300">
-          Add the essentials so we can personalize suggestions.
-        </p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Name
-          </span>
-          <input
-            required
-            name="name"
-            type="text"
-            value={formState.name}
-            onChange={onFieldChange}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
-          />
-        </label>
-        <fieldset className="flex flex-col gap-2">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Gender
-          </legend>
-          <div className="flex flex-wrap gap-3">
-            {["Male", "Female"].map((option) => {
-              const value = option.toLowerCase();
-              const isSelected = formState.gender.toLowerCase() === value;
-              return (
-                <label
-                  key={value}
-                  className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${
-                    isSelected
-                      ? "border-emerald-400 bg-emerald-50 font-semibold shadow-sm shadow-emerald-200/70 dark:border-emerald-600 dark:bg-emerald-900/30"
-                      : "border-slate-300 bg-white hover:border-emerald-200 hover:bg-emerald-50/50 dark:border-slate-700 dark:bg-slate-900"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="gender"
-                    value={value}
-                    checked={isSelected}
-                    onChange={onFieldChange}
-                    className="accent-emerald-500"
-                  />
-                  <span className="text-slate-700 dark:text-slate-200">
-                    {option}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
-      </div>
-      <label className="flex flex-col gap-1 sm:max-w-[200px]">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          Age
-        </span>
-        <input
-          required
-          name="age"
-          type="text"
-          inputMode="numeric"
-          value={formState.age}
-          onChange={onFieldChange}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
-        />
-      </label>
-      {!isAgeValid && formState.age && (
-        <p className="text-sm text-red-500">
-          Please enter a valid age using digits only.
-        </p>
-      )}
-    </div>
-  );
-};
-
-interface ConnectedStepProps {
-  formState: FormState;
-  onFieldChange: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
-}
-
-const ConnectedStep: React.FC<ConnectedStepProps> = ({
-  formState,
-  onFieldChange,
-}) => {
-  return (
-    <div className="flex flex-col gap-4 py-4">
-      <div>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Capture your relationship
-        </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-300">
-          These details help tailor reminders and tone.
-        </p>
-      </div>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          How are you connected?
-        </span>
-        <input
-          name="relationship"
-          type="text"
-          placeholder="e.g. College roommate, Mentor"
-          value={formState.relationship}
-          onChange={onFieldChange}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
-        />
-      </label>
-      <label className="flex flex-col gap-1 sm:max-w-[220px]">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          Connected since
-        </span>
-        <input
-          name="connectedSince"
-          type="date"
-          value={formState.connectedSince}
-          onChange={onFieldChange}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
-        />
-      </label>
-    </div>
-  );
-};
-
-interface DatesStepProps {
-  birthday: string;
-  onFieldChange: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
-}
-
-const DatesStep: React.FC<DatesStepProps> = ({ birthday, onFieldChange }) => {
-  return (
-    <div className="flex flex-col gap-4 py-4">
-      <div>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Important dates
-        </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-300">
-          Track birthdays or anniversaries you want reminders for.
-        </p>
-      </div>
-      <label className="flex flex-col gap-1 sm:max-w-[220px]">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          Birthday
-        </span>
-        <input
-          required
-          name="birthday"
-          type="date"
-          value={birthday}
-          onChange={onFieldChange}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
-        />
-      </label>
-    </div>
-  );
-};
-
-interface LikingStepProps {
-  formState: FormState;
-  onFieldChange: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
-  birthdayPreview: string;
-  connectedPreview: string;
-}
-
-const LikingStep: React.FC<LikingStepProps> = ({
-  formState,
-  onFieldChange,
-  birthdayPreview,
-  connectedPreview,
-}) => {
-  return (
-    <div className="flex flex-col gap-4 py-4">
-      <div>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Personal touches
-        </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-300">
-          Add gift ideas, preferences, or anything else worth remembering.
-        </p>
-      </div>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          Likes &amp; gift inspiration
-        </span>
-        <textarea
-          name="preferences"
-          rows={4}
-          value={formState.preferences}
-          onChange={onFieldChange}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
-          placeholder="Favorite colors, hobbies, go-to treats..."
-        />
-      </label>
-      <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-700 shadow-inner dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">
-        <h4 className="text-base font-semibold text-slate-800 dark:text-slate-100">
-          Quick review
-        </h4>
-        <dl className="mt-2 space-y-1">
-          <div className="flex justify-between gap-4">
-            <dt className="text-slate-500 dark:text-slate-300">Type</dt>
-            <dd className="font-medium capitalize text-slate-800 dark:text-slate-100">
-              {formState.memberType}
-            </dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-slate-500 dark:text-slate-300">Name</dt>
-            <dd className="font-medium text-slate-800 dark:text-slate-100">
-              {formState.name || "—"}
-            </dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-slate-500 dark:text-slate-300">Birthday</dt>
-            <dd className="font-medium text-slate-800 dark:text-slate-100">
-              {birthdayPreview || "—"}
-            </dd>
-          </div>
-          {(formState.relationship || connectedPreview) && (
-            <div className="flex justify-between gap-4">
-              <dt className="text-slate-500 dark:text-slate-300">Connection</dt>
-              <dd className="text-right font-medium text-slate-800 dark:text-slate-100">
-                {formState.relationship || "—"}
-                {connectedPreview ? ` · since ${connectedPreview}` : ""}
-              </dd>
-            </div>
-          )}
-          {formState.preferences && (
-            <div>
-              <dt className="text-slate-500 dark:text-slate-300">Likes</dt>
-              <dd className="mt-1 text-slate-700 dark:text-slate-200">
-                {formState.preferences}
-              </dd>
-            </div>
-          )}
-        </dl>
-      </div>
-    </div>
-  );
-};

@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import AnimatedList from "../components/ui/AnimatedList";
 import MemberCard, { type Member } from "../components/ui/MemberCard";
-import AddMemberPanel, {
-  type AddMemberFormValues,
-} from "../components/ui/AddMemberPanel";
+import AddMemberPanel from "../components/ui/AddMemberPanel";
+import type { AddMemberFormValues } from "../components/ui/AddMemberTypes";
 
 const dummieMembers: Member[] = [
   {

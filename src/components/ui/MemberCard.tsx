@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
-import type { MemberType } from "./AddMemberPanel";
+import type { MemberType } from "./AddMemberTypes";
 
 type Member = {
   id: number;
@@ -13,6 +13,7 @@ type Member = {
   relationship?: string;
   connectedSince?: string;
   preferences?: string;
+  specialDates?: Array<{ label: string; date: string }>;
 };
 
 interface MemberCardProps extends Member {
@@ -30,6 +31,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
   relationship,
   connectedSince,
   preferences,
+  specialDates,
   className = "",
   onDelete,
   onEdit,
@@ -131,6 +133,22 @@ const MemberCard: React.FC<MemberCardProps> = ({
     return date.toLocaleDateString();
   }, [connectedSince]);
 
+  const formattedSpecials = useCallback(() => {
+    if (!specialDates || specialDates.length === 0) return [] as Array<{
+      label: string;
+      value: string;
+    }>;
+    return specialDates
+      .filter((d) => d.label.toLowerCase() !== "birthday")
+      .map((d) => {
+        const dd = new Date(`${d.date}T00:00:00`);
+        return {
+          label: d.label,
+          value: Number.isNaN(dd.getTime()) ? d.date : dd.toLocaleDateString(),
+        };
+      });
+  }, [specialDates]);
+
   return (
     <div className="relative w-full select-none overflow-hidden rounded-xl">
       <div
@@ -204,6 +222,11 @@ const MemberCard: React.FC<MemberCardProps> = ({
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Birthday: {formattedBirthday()}
         </p>
+        {formattedSpecials().map((d) => (
+          <p key={`${d.label}-${d.value}`} className="text-sm text-slate-600 dark:text-slate-400">
+            {d.label}: {d.value}
+          </p>
+        ))}
         {formattedConnectedSince() && (
           <p className="text-sm text-slate-600 dark:text-slate-400">
             Connected since: {formattedConnectedSince()}
