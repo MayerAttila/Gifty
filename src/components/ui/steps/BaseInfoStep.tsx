@@ -26,14 +26,6 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      <div>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Base information
-        </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-300">
-          Add essentials and how you are connected.
-        </p>
-      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">

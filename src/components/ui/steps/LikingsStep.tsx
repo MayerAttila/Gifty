@@ -44,12 +44,7 @@ const LikingsStep: React.FC<LikingsStepProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 py-4">
-      <div>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Likings
-        </h3>
-      </div>
+    <div className="flex flex-col gap-10 py-4">
       <div className="flex items-end gap-2">
         <label className="flex grow flex-col gap-1">
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">

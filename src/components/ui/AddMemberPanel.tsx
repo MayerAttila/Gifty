@@ -182,13 +182,6 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
     []
   );
 
-  const handleMemberTypeSelect = useCallback((type: MemberType) => {
-    setFormState((prev) => ({
-      ...prev,
-      memberType: type,
-    }));
-  }, []);
-
   const handleFinalStepCompleted = useCallback(() => {
     if (!canSubmit) {
       setActiveStep(totalSteps);
