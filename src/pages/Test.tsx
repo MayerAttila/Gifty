@@ -3,6 +3,7 @@ import Stepper2 from "../components/ui/Stepper2";
 import BaseInfoStep2 from "../components/ui/steps/BaseInfoStep2";
 import LikeingStep2 from "../components/ui/steps/LikeingsStep2";
 import SpecialDatesStep2 from "../components/ui/steps/SpecialDatesStep2";
+import OcasionDate from "../components/ui/OccasionDate";
 
 const Test = () => {
   const steps = [{ name: "Step 1" }, { name: "Step 2" }, { name: "Step 3" }];

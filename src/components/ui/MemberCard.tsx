@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import type { Member } from "./AddMemberTypes";
+import OccasionDate from "./OccasionDate";
 
 interface MemberCardProps extends Member {
   className?: string;
@@ -101,29 +102,34 @@ const MemberCard: React.FC<MemberCardProps> = ({
     [onEdit, resetPosition]
   );
 
-  const formattedBirthday = useMemo(() => {
-    const date = new Date(`${birthday}T00:00:00`);
-    if (Number.isNaN(date.getTime())) {
-      return birthday;
+  const normalizedBirthday = useMemo(() => {
+    if (!birthday) {
+      return null;
     }
-    return date.toLocaleDateString();
+    if (birthday instanceof Date) {
+      return Number.isNaN(birthday.getTime()) ? null : birthday;
+    }
+    const parsed = new Date(birthday);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
   }, [birthday]);
 
-  const formattedSpecialDates = useMemo(() => {
+  const normalizedSpecialDates = useMemo(() => {
     if (!specialDates || specialDates.length === 0) {
       return [];
     }
     return specialDates
       .filter((entry) => entry.label.toLowerCase() !== "birthday")
       .map((entry) => {
-        const parsed = new Date(`${entry.date}T00:00:00`);
-        return {
-          label: entry.label,
-          value: Number.isNaN(parsed.getTime())
-            ? entry.date
-            : parsed.toLocaleDateString(),
-        };
-      });
+        const parsed =
+          entry.date instanceof Date ? entry.date : new Date(entry.date);
+        if (Number.isNaN(parsed.getTime())) {
+          return null;
+        }
+        return { label: entry.label, date: parsed };
+      })
+      .filter(
+        (entry): entry is { label: string; date: Date } => entry !== null
+      );
   }, [specialDates]);
 
   return (
@@ -195,17 +201,20 @@ const MemberCard: React.FC<MemberCardProps> = ({
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Gender: {gender}
         </p>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Birthday: {formattedBirthday}
-        </p>
-        {formattedSpecialDates.map((entry) => (
-          <p
-            key={`${entry.label}-${entry.value}`}
-            className="text-sm text-slate-600 dark:text-slate-400"
-          >
-            {entry.label}: {entry.value}
-          </p>
-        ))}
+        {(normalizedBirthday || normalizedSpecialDates.length > 0) && (
+          <div className="mt-3 space-y-2">
+            {normalizedBirthday && (
+              <OccasionDate label="Birthday" date={normalizedBirthday} />
+            )}
+            {normalizedSpecialDates.map((entry) => (
+              <OccasionDate
+                key={`${entry.label}-${entry.date.getTime()}`}
+                label={entry.label}
+                date={entry.date}
+              />
+            ))}
+          </div>
+        )}
         {likings && (
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Likes: {likings}

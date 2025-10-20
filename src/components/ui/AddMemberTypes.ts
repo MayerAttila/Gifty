@@ -1,11 +1,11 @@
 export type Member = {
   id: number;
   name: string;
-  birthday: string;
+  birthday?: Date;
   gender: string;
   connection: string;
   likings?: string;
-  specialDates?: Array<{ label: string; date: string }>;
+  specialDates?: Array<{ label: string; date: Date }>;
 };
 
 export type AddMemberFormValues = Omit<Member, "id">;

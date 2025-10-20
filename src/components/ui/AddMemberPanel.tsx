@@ -175,18 +175,39 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
       return;
     }
 
+    const trimmedBirthday = formState.birthday.trim();
+    const parsedBirthday =
+      trimmedBirthday.length > 0
+        ? new Date(`${trimmedBirthday}T00:00:00`)
+        : undefined;
+    const hasValidBirthday =
+      parsedBirthday instanceof Date &&
+      !Number.isNaN(parsedBirthday.getTime());
+
+    const parsedSpecialDates = formState.specialDates
+      .map((entry) => {
+        const parsed = new Date(`${entry.date}T00:00:00`);
+        if (Number.isNaN(parsed.getTime())) {
+          return null;
+        }
+        return { label: entry.label, date: parsed };
+      })
+      .filter(
+        (entry): entry is { label: string; date: Date } => entry !== null
+      );
+
     const payload: AddMemberFormValues = {
       name: formState.name.trim(),
       gender:
         formState.gender.trim().charAt(0).toUpperCase() +
         formState.gender.trim().slice(1),
-      birthday: formState.birthday,
       connection: formState.connection.trim(),
+      ...(hasValidBirthday ? { birthday: parsedBirthday } : {}),
       ...(formState.likings.trim()
         ? { likings: formState.likings.trim() }
         : {}),
-      ...(formState.specialDates.length > 0
-        ? { specialDates: formState.specialDates }
+      ...(parsedSpecialDates.length > 0
+        ? { specialDates: parsedSpecialDates }
         : {}),
     };
 
@@ -249,7 +270,7 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
             onClick={onClose}
           />
           <motion.div
-            className="relative z-10 w-full max-w-4xl max-h-[95vh] overflow-y-auto rounded-t-3xl bg-white p-0 shadow-2xl dark:bg-slate-900 md:rounded-3xl"
+            className="relative z-10 w-full max-w-4xl max-h-[95vh] overflow-hidden rounded-t-3xl bg-white p-0 shadow-2xl dark:bg-slate-900 md:rounded-3xl"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
