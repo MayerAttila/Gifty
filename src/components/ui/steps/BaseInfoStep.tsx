@@ -7,15 +7,13 @@ interface BaseInfoStepProps {
   onFieldChange: (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
-  isAgeValid: boolean;
-  onSelectRelationship: (value: string) => void;
+  onSelectConnection: (value: string) => void;
 }
 
 const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
   formState,
   onFieldChange,
-  isAgeValid,
-  onSelectRelationship,
+  onSelectConnection,
 }) => {
   const gender = formState.gender.toLowerCase();
   const relationshipSuggestions = (
@@ -87,24 +85,29 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
           </div>
         </fieldset>
       </div>
-      {!isAgeValid && formState.age && (
-        <p className="text-sm text-red-500">Please enter a valid age.</p>
-      )}
       <div className="mt-2">
         <label className="flex flex-col gap-1">
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Connection
           </span>
+          <input
+            type="text"
+            name="connection"
+            placeholder="e.g. Sister, College friend, Neighbor"
+            value={formState.connection}
+            onChange={onFieldChange}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
+          />
         </label>
         <div className="mt-2 flex flex-wrap gap-2">
           {relationshipSuggestions.map((rel) => {
             const isActive =
-              formState.relationship.toLowerCase() === rel.toLowerCase();
+              formState.connection.toLowerCase() === rel.toLowerCase();
             return (
               <button
                 key={rel}
                 type="button"
-                onClick={() => onSelectRelationship(rel)}
+                onClick={() => onSelectConnection(rel)}
                 className={`rounded-full px-3 py-1.5 text-sm transition ${
                   isActive
                     ? "bg-emerald-500 text-white shadow shadow-emerald-400/50"

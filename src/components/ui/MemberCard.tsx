@@ -1,20 +1,7 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
-import type { MemberType } from "./AddMemberTypes";
-
-type Member = {
-  id: number;
-  name: string;
-  gender: string;
-  age: number;
-  birthday: string;
-  memberType: MemberType;
-  relationship?: string;
-  connectedSince?: string;
-  preferences?: string;
-  specialDates?: Array<{ label: string; date: string }>;
-};
+import type { Member } from "./AddMemberTypes";
 
 interface MemberCardProps extends Member {
   className?: string;
@@ -22,15 +9,15 @@ interface MemberCardProps extends Member {
   onEdit?: () => void;
 }
 
+const ACTION_OFFSET = 80;
+const SWIPE_THRESHOLD = 30;
+
 const MemberCard: React.FC<MemberCardProps> = ({
   name,
   gender,
-  age,
   birthday,
-  memberType,
-  relationship,
-  connectedSince,
-  preferences,
+  connection,
+  likings,
   specialDates,
   className = "",
   onDelete,
@@ -41,8 +28,6 @@ const MemberCard: React.FC<MemberCardProps> = ({
   const [activeAction, setActiveAction] = useState<"delete" | "edit" | null>(
     null
   );
-  const ACTION_OFFSET = 80;
-  const SWIPE_THRESHOLD = 30;
 
   const resetPosition = useCallback(() => {
     setActiveAction(null);
@@ -62,11 +47,13 @@ const MemberCard: React.FC<MemberCardProps> = ({
         transition: { type: "spring", stiffness: 500, damping: 40 },
       });
     },
-    [ACTION_OFFSET, controls]
+    [controls]
   );
 
   const triggerDelete = useCallback(async () => {
-    if (isDeleting) return;
+    if (isDeleting) {
+      return;
+    }
     if (!onDelete) {
       resetPosition();
       return;
@@ -86,15 +73,13 @@ const MemberCard: React.FC<MemberCardProps> = ({
       const swipe = offset.x + velocity.x * 50;
       if (swipe <= -SWIPE_THRESHOLD) {
         snapToAction("delete");
+      } else if (swipe >= SWIPE_THRESHOLD) {
+        snapToAction("edit");
       } else {
-        if (swipe >= SWIPE_THRESHOLD) {
-          snapToAction("edit");
-        } else {
-          resetPosition();
-        }
+        resetPosition();
       }
     },
-    [SWIPE_THRESHOLD, resetPosition, snapToAction]
+    [resetPosition, snapToAction]
   );
 
   const handleDeleteClick = useCallback(
@@ -116,7 +101,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
     [onEdit, resetPosition]
   );
 
-  const formattedBirthday = useCallback(() => {
+  const formattedBirthday = useMemo(() => {
     const date = new Date(`${birthday}T00:00:00`);
     if (Number.isNaN(date.getTime())) {
       return birthday;
@@ -124,27 +109,19 @@ const MemberCard: React.FC<MemberCardProps> = ({
     return date.toLocaleDateString();
   }, [birthday]);
 
-  const formattedConnectedSince = useCallback(() => {
-    if (!connectedSince) return null;
-    const date = new Date(`${connectedSince}T00:00:00`);
-    if (Number.isNaN(date.getTime())) {
-      return connectedSince;
+  const formattedSpecialDates = useMemo(() => {
+    if (!specialDates || specialDates.length === 0) {
+      return [];
     }
-    return date.toLocaleDateString();
-  }, [connectedSince]);
-
-  const formattedSpecials = useCallback(() => {
-    if (!specialDates || specialDates.length === 0) return [] as Array<{
-      label: string;
-      value: string;
-    }>;
     return specialDates
-      .filter((d) => d.label.toLowerCase() !== "birthday")
-      .map((d) => {
-        const dd = new Date(`${d.date}T00:00:00`);
+      .filter((entry) => entry.label.toLowerCase() !== "birthday")
+      .map((entry) => {
+        const parsed = new Date(`${entry.date}T00:00:00`);
         return {
-          label: d.label,
-          value: Number.isNaN(dd.getTime()) ? d.date : dd.toLocaleDateString(),
+          label: entry.label,
+          value: Number.isNaN(parsed.getTime())
+            ? entry.date
+            : parsed.toLocaleDateString(),
         };
       });
   }, [specialDates]);
@@ -213,28 +190,25 @@ const MemberCard: React.FC<MemberCardProps> = ({
           {name}
         </h2>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          {memberType.charAt(0).toUpperCase() + memberType.slice(1)}
-          {relationship ? ` · ${relationship}` : ""}
+          Connection: {connection}
         </p>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Gender: {gender} | Age: {age}
+          Gender: {gender}
         </p>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Birthday: {formattedBirthday()}
+          Birthday: {formattedBirthday}
         </p>
-        {formattedSpecials().map((d) => (
-          <p key={`${d.label}-${d.value}`} className="text-sm text-slate-600 dark:text-slate-400">
-            {d.label}: {d.value}
+        {formattedSpecialDates.map((entry) => (
+          <p
+            key={`${entry.label}-${entry.value}`}
+            className="text-sm text-slate-600 dark:text-slate-400"
+          >
+            {entry.label}: {entry.value}
           </p>
         ))}
-        {formattedConnectedSince() && (
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Connected since: {formattedConnectedSince()}
-          </p>
-        )}
-        {preferences && (
+        {likings && (
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            Likes: {preferences}
+            Likes: {likings}
           </p>
         )}
       </motion.div>

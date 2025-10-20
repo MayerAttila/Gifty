@@ -1,20 +1,12 @@
 import React, { useState } from "react";
-import type { ChangeEvent } from "react";
 import type { FormState } from "../AddMemberTypes";
 
 interface LikingsStepProps {
   formState: FormState;
-  onFieldChange: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
   onToggleLike: (value: string) => void;
 }
 
-const LikingsStep: React.FC<LikingsStepProps> = ({
-  formState,
-  onFieldChange,
-  onToggleLike,
-}) => {
+const LikingsStep: React.FC<LikingsStepProps> = ({ formState, onToggleLike }) => {
   const [newLike, setNewLike] = useState("");
   const gender = formState.gender.toLowerCase();
   const maleLikes = ["Gadgets", "Sports", "Gaming", "Watches"];
@@ -24,7 +16,7 @@ const LikingsStep: React.FC<LikingsStepProps> = ({
     ...(gender === "male" ? maleLikes : femaleLikes),
     ...neutralLikes,
   ];
-  const selectedRaw = formState.preferences
+  const selectedRaw = formState.likings
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);

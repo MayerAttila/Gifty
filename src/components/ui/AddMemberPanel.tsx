@@ -8,13 +8,9 @@ import React, {
 } from "react";
 import { AnimatePresence, motion, useDragControls } from "motion/react";
 import type { PanInfo } from "motion/react";
-import { FiCheck, FiCircle, FiDisc, FiX } from "react-icons/fi";
+import { FiCheck, FiCircle, FiDisc } from "react-icons/fi";
 import Stepper, { Step } from "./Stepper";
-import type {
-  AddMemberFormValues,
-  FormState,
-  MemberType,
-} from "./AddMemberTypes";
+import type { AddMemberFormValues, FormState } from "./AddMemberTypes";
 import BaseInfoStep from "./steps/BaseInfoStep";
 import LikingsStep from "./steps/LikingsStep";
 import SpecialDatesStep from "./steps/SpecialDatesStep";
@@ -33,12 +29,9 @@ interface AddMemberPanelProps {
 const emptyFormState: FormState = {
   name: "",
   gender: "male",
-  age: "",
   birthday: "",
-  memberType: "friend",
-  relationship: "",
-  connectedSince: "",
-  preferences: "",
+  connection: "",
+  likings: "",
   specialDates: [],
 };
 
@@ -47,33 +40,6 @@ const stepDescriptors = [
   { title: "Likings", subtitle: "Interests and gift ideas." },
   { title: "Dates", subtitle: "Birthdays, namedays, anniversaries." },
 ] as const;
-
-const memberTypeOptions: Array<{
-  label: string;
-  value: MemberType;
-  helper: string;
-}> = [
-  {
-    label: "Family",
-    value: "family",
-    helper: "Parents, siblings, extended relatives.",
-  },
-  {
-    label: "Friend",
-    value: "friend",
-    helper: "Close friends and chosen family.",
-  },
-  {
-    label: "Coworker",
-    value: "coworker",
-    helper: "Teammates, managers, clients.",
-  },
-  {
-    label: "Other",
-    value: "other",
-    helper: "Neighbors, mentors, community.",
-  },
-];
 
 // Date formatter imported from utils/date
 
@@ -161,18 +127,12 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
     return () => mediaQuery.removeListener(updateIsMobile);
   }, []);
 
-  const parsedAge = useMemo(() => Number(formState.age), [formState.age]);
-  const isAgeValid = useMemo(
-    () => !Number.isNaN(parsedAge) && parsedAge >= 0,
-    [parsedAge]
-  );
-
   const canSubmit = useMemo(() => {
     if (!formState.name.trim()) return false;
     if (!formState.gender.trim()) return false;
-    if (!isAgeValid) return false;
+    if (!formState.connection.trim()) return false;
     return true;
-  }, [formState.name, formState.gender, isAgeValid]);
+  }, [formState.name, formState.gender, formState.connection]);
 
   const isStepReady = useMemo(() => {
     switch (activeStep) {
@@ -180,16 +140,12 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
         return (
           Boolean(formState.name.trim()) &&
           Boolean(formState.gender.trim()) &&
-          isAgeValid
+          Boolean(formState.connection.trim())
         );
-      case 2:
-        return true;
-      case 3:
-        return true;
       default:
         return true;
     }
-  }, [activeStep, formState.name, formState.gender, isAgeValid]);
+  }, [activeStep, formState.name, formState.gender, formState.connection]);
 
   const nextButtonText =
     activeStep === totalSteps ? "Create Member" : "Continue";
@@ -207,7 +163,7 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
       const { name, value } = event.target;
       setFormState((prev) => ({
         ...prev,
-        [name]: name === "age" ? value.replace(/[^0-9]/g, "") : value,
+        [name]: value,
       }));
     },
     []
@@ -224,18 +180,14 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
       gender:
         formState.gender.trim().charAt(0).toUpperCase() +
         formState.gender.trim().slice(1),
-      age: parsedAge,
       birthday: formState.birthday,
-      memberType: formState.memberType,
-      relationship: formState.relationship.trim()
-        ? formState.relationship.trim()
-        : undefined,
-      connectedSince: formState.connectedSince || undefined,
-      preferences: formState.preferences.trim()
-        ? formState.preferences.trim()
-        : undefined,
-      specialDates:
-        formState.specialDates.length > 0 ? formState.specialDates : undefined,
+      connection: formState.connection.trim(),
+      ...(formState.likings.trim()
+        ? { likings: formState.likings.trim() }
+        : {}),
+      ...(formState.specialDates.length > 0
+        ? { specialDates: formState.specialDates }
+        : {}),
     };
 
     onSubmit(payload);
@@ -244,12 +196,9 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
     formState.name,
     formState.gender,
     formState.birthday,
-    formState.memberType,
-    formState.relationship,
-    formState.connectedSince,
-    formState.preferences,
+    formState.connection,
+    formState.likings,
     formState.specialDates,
-    parsedAge,
     onSubmit,
     totalSteps,
   ]);
@@ -357,15 +306,10 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
                 <BaseInfoStep
                   formState={formState}
                   onFieldChange={handleFieldChange}
-                  isAgeValid={isAgeValid}
-                  onSelectRelationship={(rel) => {
+                  onSelectConnection={(rel) => {
                     setFormState((prev) => ({
                       ...prev,
-                      relationship: rel,
-                      memberType:
-                        rel.toLowerCase() === "family"
-                          ? "family"
-                          : prev.memberType,
+                      connection: rel,
                     }));
                   }}
                 />
@@ -373,10 +317,9 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
               <Step>
                 <LikingsStep
                   formState={formState}
-                  onFieldChange={handleFieldChange}
                   onToggleLike={(like) => {
                     setFormState((prev) => {
-                      const current = prev.preferences
+                      const current = prev.likings
                         .split(",")
                         .map((s) => s.trim())
                         .filter(Boolean);
@@ -388,7 +331,7 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
                             (s) => s.toLowerCase() !== like.toLowerCase()
                           )
                         : [...current, like];
-                      return { ...prev, preferences: next.join(", ") };
+                      return { ...prev, likings: next.join(", ") };
                     });
                   }}
                 />

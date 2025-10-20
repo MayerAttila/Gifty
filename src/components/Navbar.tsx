@@ -6,6 +6,7 @@ import ThemeToggle from "./ui/ThemeToggle";
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/Members", label: "Members" },
+  { to: "/Members2", label: "Members2" },
   { to: "/features", label: "Features" },
   { to: "/pricing", label: "Pricing" },
   { to: "/contact", label: "Contact" },

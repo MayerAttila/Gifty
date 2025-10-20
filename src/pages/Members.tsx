@@ -4,88 +4,8 @@ import MemberCard, { type Member } from "../components/ui/MemberCard";
 import AddMemberPanel from "../components/ui/AddMemberPanel";
 import type { AddMemberFormValues } from "../components/ui/AddMemberTypes";
 
-const dummieMembers: Member[] = [
-  {
-    id: 1,
-    name: "John Doe",
-    gender: "Male",
-    age: 30,
-    birthday: "1993-01-15",
-    memberType: "friend",
-    relationship: "College roommate",
-    connectedSince: "2011-09-01",
-    preferences: "Single-origin coffee, weekend hikes",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    gender: "Female",
-    age: 25,
-    birthday: "1998-05-22",
-    memberType: "family",
-    relationship: "Younger sister",
-    connectedSince: "1998-05-22",
-    preferences: "Art museum passes, cozy sweaters",
-  },
-  {
-    id: 3,
-    name: "Alice Johnson",
-    gender: "Female",
-    age: 28,
-    birthday: "1995-03-10",
-    memberType: "coworker",
-    relationship: "Design partner",
-    connectedSince: "2020-02-01",
-    preferences: "Stationery sets, matcha treats",
-  },
-  {
-    id: 4,
-    name: "Bob Brown",
-    gender: "Male",
-    age: 35,
-    birthday: "1988-07-30",
-    memberType: "family",
-    relationship: "Older cousin",
-    connectedSince: "1988-07-30",
-    preferences: "BBQ gadgets, vinyl records",
-  },
-  {
-    id: 5,
-    name: "Charlie Davis",
-    gender: "Male",
-    age: 32,
-    birthday: "1991-11-12",
-    memberType: "friend",
-    relationship: "Running buddy",
-    connectedSince: "2018-04-15",
-    preferences: "Trail gear, smart home tech",
-  },
-  {
-    id: 6,
-    name: "Diana Evans",
-    gender: "Female",
-    age: 27,
-    birthday: "1996-09-05",
-    memberType: "other",
-    relationship: "Neighbor",
-    connectedSince: "2021-06-10",
-    preferences: "Indoor plants, indie novels",
-  },
-  {
-    id: 7,
-    name: "Ethan Harris",
-    gender: "Male",
-    age: 29,
-    birthday: "1994-12-20",
-    memberType: "coworker",
-    relationship: "Product manager",
-    connectedSince: "2019-01-07",
-    preferences: "Specialty teas, board games",
-  },
-];
-
 const Members = () => {
-  const [members, setMembers] = useState<Member[]>(dummieMembers);
+  const [members, setMembers] = useState<Member[]>([]);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
 
   const nextMemberId = useMemo(() => {
