@@ -4,8 +4,10 @@ import React, {
   useMemo,
   useState,
   type ChangeEvent,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useDragControls } from "motion/react";
+import type { PanInfo } from "motion/react";
 import { FiCheck, FiCircle, FiDisc, FiX } from "react-icons/fi";
 import Stepper, { Step } from "./Stepper";
 import type {
@@ -41,9 +43,9 @@ const emptyFormState: FormState = {
 };
 
 const stepDescriptors = [
-  { title: "Base Info", subtitle: "Basics + how you're connected." },
+  { title: "Info", subtitle: "Basics + how you're connected." },
   { title: "Likings", subtitle: "Interests and gift ideas." },
-  { title: "Special Dates", subtitle: "Birthdays, namedays, anniversaries." },
+  { title: "Dates", subtitle: "Birthdays, namedays, anniversaries." },
 ] as const;
 
 const memberTypeOptions: Array<{
@@ -129,6 +131,8 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
 }) => {
   const [formState, setFormState] = useState<FormState>(emptyFormState);
   const [activeStep, setActiveStep] = useState<number>(1);
+  const [isMobile, setIsMobile] = useState(false);
+  const dragControls = useDragControls();
   const totalSteps = stepDescriptors.length;
 
   useEffect(() => {
@@ -137,6 +141,25 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
       setActiveStep(1);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const mediaQuery = window.matchMedia("(max-width: 640px)");
+    const updateIsMobile = (event: MediaQueryListEvent) => {
+      setIsMobile(event.matches);
+    };
+    setIsMobile(mediaQuery.matches);
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updateIsMobile);
+      return () => mediaQuery.removeEventListener("change", updateIsMobile);
+    }
+
+    mediaQuery.addListener(updateIsMobile);
+    return () => mediaQuery.removeListener(updateIsMobile);
+  }, []);
 
   const parsedAge = useMemo(() => Number(formState.age), [formState.age]);
   const isAgeValid = useMemo(
@@ -170,6 +193,14 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
 
   const nextButtonText =
     activeStep === totalSteps ? "Create Member" : "Continue";
+
+  const dragConstraints = useMemo(() => {
+    if (!isMobile) {
+      return undefined;
+    }
+    // allow a small downward pull so we can measure distance before closing
+    return { top: 0, bottom: 360 };
+  }, [isMobile]);
 
   const handleFieldChange = useCallback(
     (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -223,6 +254,30 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
     totalSteps,
   ]);
 
+  const handlePanelDragEnd = useCallback(
+    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      if (!isMobile) {
+        return;
+      }
+
+      if (info.offset.y > 80 || info.velocity.y > 600) {
+        onClose();
+      }
+    },
+    [isMobile, onClose]
+  );
+
+  const handleGrabPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!isMobile) {
+        return;
+      }
+      event.stopPropagation();
+      dragControls.start(event.nativeEvent, { snapToCursor: false });
+    },
+    [dragControls, isMobile]
+  );
+
   // previews moved out of LikingsStep; not needed here
   // removed nameday/anniversary previews; dates are handled dynamically
 
@@ -245,7 +300,7 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
             onClick={onClose}
           />
           <motion.div
-            className="relative z-10 max-h-[95vh] overflow-y-auto rounded-t-3xl bg-white p-6 shadow-2xl dark:bg-slate-900"
+            className="relative z-10 w-full max-w-4xl max-h-[95vh] overflow-y-auto rounded-t-3xl bg-white p-0 shadow-2xl dark:bg-slate-900 md:rounded-3xl"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -254,24 +309,24 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
               stiffness: 500,
               damping: 40,
             }}
+            drag={isMobile ? "y" : false}
+            dragConstraints={dragConstraints}
+            dragElastic={isMobile ? 0.35 : 0}
+            dragMomentum={false}
+            dragControls={dragControls}
+            dragListener={false}
+            onDragEnd={handlePanelDragEnd}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
-                  Add New Member
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-300">
-                  Use the steps to capture the essentials we’ll track.
-                </p>
+            <div className=" flex flex-col">
+              <div className="flex justify-center sm:hidden pt-4">
+                <div
+                  role="presentation"
+                  className="h-1.5 w-16  cursor-grab rounded-full bg-slate-300 transition dark:bg-slate-700 active:cursor-grabbing"
+                  aria-hidden="true"
+                  style={{ touchAction: "none" }}
+                  onPointerDown={handleGrabPointerDown}
+                />
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-              >
-                <span className="sr-only">Close panel</span>
-                <FiX className="h-5 w-5" aria-hidden="true" />
-              </button>
             </div>
             <Stepper
               initialStep={1}
@@ -280,8 +335,8 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
               nextButtonText={nextButtonText}
               nextButtonProps={{ disabled: !isStepReady }}
               backButtonText="Back"
-              stepCircleContainerClassName="bg-slate-950/80 dark:bg-slate-900/70"
-              stepContainerClassName="flex flex-wrap justify-center gap-4 sm:gap-6"
+              stepCircleContainerClassName="w-full bg-red-300 dark:bg-slate-900/70"
+              stepContainerClassName="justify-center p-0"
               contentClassName="pb-6"
               footerClassName=""
               renderStepIndicator={({ step, currentStep, onStepClick }) => (

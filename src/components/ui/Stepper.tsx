@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  Children,
-  useRef,
-  useLayoutEffect,
-} from "react";
+import React, { useState, Children, useRef, useLayoutEffect } from "react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import type { Variants } from "motion/react";
@@ -88,43 +83,53 @@ export default function Stepper({
       {...rest}
     >
       <div
-        className={`mx-auto w-full max-w-md rounded-4xl shadow-xl ${stepCircleContainerClassName}`}
+        className={`w-full shadow-xl ${stepCircleContainerClassName ?? ""}`}
         style={{ border: "1px solid #222" }}
       >
         <div
-          className={`${stepContainerClassName} flex w-full items-center p-8`}
+          className={`${stepContainerClassName} flex w-full items-center px-4 py-6 sm:px-6 sm:py-8`}
         >
-          {stepsArray.map((_, index) => {
-            const stepNumber = index + 1;
-            const isNotLastStep = index < totalSteps - 1;
-            return (
-              <React.Fragment key={stepNumber}>
-                {renderStepIndicator ? (
-                  renderStepIndicator({
-                    step: stepNumber,
-                    currentStep,
-                    onStepClick: (clicked) => {
-                      setDirection(clicked > currentStep ? 1 : -1);
-                      updateStep(clicked);
-                    },
-                  })
-                ) : (
-                  <StepIndicator
-                    step={stepNumber}
-                    disableStepIndicators={disableStepIndicators}
-                    currentStep={currentStep}
-                    onClickStep={(clicked) => {
-                      setDirection(clicked > currentStep ? 1 : -1);
-                      updateStep(clicked);
-                    }}
-                  />
-                )}
-                {isNotLastStep && (
-                  <StepConnector isComplete={currentStep > stepNumber} />
-                )}
-              </React.Fragment>
-            );
-          })}
+          <div className="flex w-full items-center justify-between">
+            {stepsArray.map((_, index) => {
+              const stepNumber = index + 1;
+              const isNotLastStep = index < totalSteps - 1;
+
+              return (
+                <React.Fragment key={stepNumber}>
+                  {/* Step circle + label stacked vertically */}
+                  <div className="flex flex-col items-center mt-1">
+                    {renderStepIndicator ? (
+                      renderStepIndicator({
+                        step: stepNumber,
+                        currentStep,
+                        onStepClick: (clicked) => {
+                          setDirection(clicked > currentStep ? 1 : -1);
+                          updateStep(clicked);
+                        },
+                      })
+                    ) : (
+                      <StepIndicator
+                        step={stepNumber}
+                        disableStepIndicators={disableStepIndicators}
+                        currentStep={currentStep}
+                        onClickStep={(clicked) => {
+                          setDirection(clicked > currentStep ? 1 : -1);
+                          updateStep(clicked);
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Connector between circles only */}
+                  {isNotLastStep && (
+                    <div className="flex flex-1 items-center justify-center -translate-y-[10px]">
+                      <StepConnector isComplete={currentStep > stepNumber} />
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
 
         <StepContentWrapper
@@ -342,18 +347,18 @@ interface StepConnectorProps {
 
 function StepConnector({ isComplete }: StepConnectorProps) {
   const lineVariants: Variants = {
-    incomplete: { width: 0, backgroundColor: "transparent" },
-    complete: { width: "100%", backgroundColor: "#5227FF" },
+    incomplete: { scaleX: 0, backgroundColor: "#475569" }, // slate-600
+    complete: { scaleX: 1, backgroundColor: "#10b981" }, // emerald-500
   };
 
   return (
-    <div className="relative mx-2 h-0.5 flex-1 overflow-hidden rounded bg-neutral-600">
+    <div className="relative flex flex-1 items-center justify-center">
       <motion.div
-        className="absolute left-0 top-0 h-full"
+        className="h-[4px] w-full origin-left rounded-full"
         variants={lineVariants}
-        initial={false}
+        initial="incomplete"
         animate={isComplete ? "complete" : "incomplete"}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
       />
     </div>
   );
