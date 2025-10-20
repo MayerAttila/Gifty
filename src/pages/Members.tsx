@@ -1,12 +1,132 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AnimatedList from "../components/ui/AnimatedList";
 import MemberCard, { type Member } from "../components/ui/MemberCard";
 import AddMemberPanel from "../components/ui/AddMemberPanel";
 import type { AddMemberFormValues } from "../components/ui/AddMemberTypes";
 
+const MEMBERS_STORAGE_KEY = "gifty:members";
+
+const reviveMember = (candidate: unknown): Member | null => {
+  if (typeof candidate !== "object" || candidate === null) {
+    return null;
+  }
+  const {
+    id,
+    name,
+    gender,
+    connection,
+    likings,
+    birthday,
+    specialDates,
+  } = candidate as {
+    id?: unknown;
+    name?: unknown;
+    gender?: unknown;
+    connection?: unknown;
+    likings?: unknown;
+    birthday?: unknown;
+    specialDates?: unknown;
+  };
+
+  if (
+    typeof id !== "number" ||
+    typeof name !== "string" ||
+    typeof gender !== "string" ||
+    typeof connection !== "string"
+  ) {
+    return null;
+  }
+
+  let normalizedBirthday: Date | undefined;
+  if (typeof birthday === "string" || birthday instanceof Date) {
+    const parsed =
+      birthday instanceof Date ? birthday : new Date(birthday as string);
+    if (!Number.isNaN(parsed.getTime())) {
+      normalizedBirthday = parsed;
+    }
+  }
+
+  let normalizedSpecialDates: Member["specialDates"];
+  if (Array.isArray(specialDates)) {
+    const revived = specialDates
+      .map((entry) => {
+        if (typeof entry !== "object" || entry === null) {
+          return null;
+        }
+        const { label, date } = entry as {
+          label?: unknown;
+          date?: unknown;
+        };
+        if (typeof label !== "string") {
+          return null;
+        }
+        if (typeof date !== "string" && !(date instanceof Date)) {
+          return null;
+        }
+        const parsed = date instanceof Date ? date : new Date(date);
+        if (Number.isNaN(parsed.getTime())) {
+          return null;
+        }
+        return { label, date: parsed };
+      })
+      .filter(
+        (entry): entry is { label: string; date: Date } => entry !== null
+      );
+    if (revived.length > 0) {
+      normalizedSpecialDates = revived;
+    }
+  }
+
+  return {
+    id,
+    name,
+    gender,
+    connection,
+    ...(typeof likings === "string" ? { likings } : {}),
+    ...(normalizedBirthday ? { birthday: normalizedBirthday } : {}),
+    ...(normalizedSpecialDates ? { specialDates: normalizedSpecialDates } : {}),
+  };
+};
+
+const loadMembersFromStorage = (): Member[] => {
+  if (typeof window === "undefined") {
+    return [];
+  }
+  const raw = window.localStorage.getItem(MEMBERS_STORAGE_KEY);
+  if (!raw) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .map(reviveMember)
+      .filter((member): member is Member => member !== null);
+  } catch {
+    return [];
+  }
+};
+
 const Members = () => {
-  const [members, setMembers] = useState<Member[]>([]);
+  const [members, setMembers] = useState<Member[]>(loadMembersFromStorage);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    window.localStorage.setItem(
+      MEMBERS_STORAGE_KEY,
+      JSON.stringify(members, (_, value) => {
+        if (value instanceof Date) {
+          return value.toISOString();
+        }
+        return value;
+      })
+    );
+  }, [members]);
 
   const nextMemberId = useMemo(() => {
     if (!members.length) {
