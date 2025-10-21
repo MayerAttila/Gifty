@@ -187,33 +187,21 @@ const MemberCard: React.FC<MemberCardProps> = ({
     switch (normalized) {
       case "male":
         return {
-          container: "border-sky-200/70 dark:border-sky-600/40",
           gradient:
-            "bg-gradient-to-br from-sky-50 via-white to-white dark:from-slate-900 dark:via-sky-900/40 dark:to-slate-900",
+            "bg-gradient-to-br from-sky-200 via-white to-sky-200 dark:from-slate-900 dark:via-sky-900/40 dark:to-slate-900",
           accent: "text-sky-700 dark:text-sky-200",
         };
       case "female":
         return {
-          container: "border-rose-200/70 dark:border-rose-600/40",
           gradient:
-            "bg-gradient-to-br from-rose-50 via-white to-white dark:from-slate-900 dark:via-rose-900/40 dark:to-slate-900",
+            "bg-gradient-to-br from-rose-200 via-white to-rose-200 dark:from-slate-900 dark:via-rose-900/40 dark:to-slate-900",
           accent: "text-rose-700 dark:text-rose-200",
-        };
-      case "non-binary":
-      case "nonbinary":
-      case "enby":
-        return {
-          container: "border-amber-200/70 dark:border-amber-600/40",
-          gradient:
-            "bg-gradient-to-br from-amber-50 via-white to-white dark:from-slate-900 dark:via-amber-900/35 dark:to-slate-900",
-          accent: "text-amber-700 dark:text-amber-200",
         };
       default:
         return {
-          container: "border-slate-200/70 dark:border-slate-700/60",
           gradient:
-            "bg-gradient-to-br from-white via-white to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-900",
-          accent: "text-slate-500 dark:text-slate-400",
+            "bg-gradient-to-br from-slate-50 via-white to-white dark:from-slate-900 dark:via-slate-800/40 dark:to-slate-900",
+          accent: "text-slate-700 dark:text-slate-200",
         };
     }
   }, [gender]);
@@ -299,7 +287,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
           }
         }}
         whileTap={{ scale: 1.03 }}
-        className={`relative z-10 flex w-full flex-col gap-4 rounded-xl border ${genderTone.container} ${genderTone.gradient} bg-white dark:bg-slate-900 p-5 shadow-md transition-[background-color,border-color] duration-200 dark:shadow-lg ${className}`}
+        className={`relative z-10 flex w-full flex-col gap-4 rounded-xl  ${genderTone.gradient} bg-white dark:bg-slate-900 p-5 shadow-md transition-[background-color,border-color] duration-200 dark:shadow-lg ${className}`}
       >
         <span className="sr-only">Gender: {genderLabel}</span>
         <div className="flex items-start justify-between gap-3">
@@ -324,7 +312,9 @@ const MemberCard: React.FC<MemberCardProps> = ({
               displayScrollbar
               scrollContainerClassName="max-h-[8.5rem] min-h-[3.5rem] overflow-y-auto space-y-2 px-1 !bg-white dark:!bg-slate-800/80"
               className="w-full p-0"
-              getItemKey={(item, index) => `${item.label}-${item.date.getTime()}-${index}`}
+              getItemKey={(item, index) =>
+                `${item.label}-${item.date.getTime()}-${index}`
+              }
               renderItem={(item, index) => (
                 <OccasionDate
                   label={item.label}
@@ -339,29 +329,6 @@ const MemberCard: React.FC<MemberCardProps> = ({
             />
           </div>
         )}
-
-        {/* {displayedLikings.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              Likes
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {displayedLikings.map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-emerald-300/70 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:text-emerald-200"
-                >
-                  {item}
-                </span>
-              ))}
-              {remainingLikings > 0 && (
-                <span className="rounded-full px-3 py-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  +{remainingLikings} more
-                </span>
-              )}
-            </div>
-          </div>
-        )} */}
       </motion.div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useCallback, useId, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import type { FormState } from "../AddMemberTypes";
 import OccasionDate from "../OccasionDate";
 import AnimatedList from "../AnimatedList";
@@ -19,7 +19,6 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
 }) => {
   const [label, setLabel] = useState("");
   const [date, setDate] = useState("");
-  const dateInputId = useId();
 
   const canAdd = label.trim().length > 0 && Boolean(date);
   const handleAdd = () => {
@@ -40,9 +39,9 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
   );
 
   return (
-    <div className="flex w-full flex-col gap-4 py-4">
-      <div className="grid w-full gap-4 sm:[grid-template-columns:minmax(0,1fr)_auto] sm:items-end">
-        <label className="flex w-full flex-col gap-1">
+    <div className="flex flex-col gap-4 py-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-1">
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Occasion name
           </span>
@@ -51,40 +50,34 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
             placeholder="e.g. Nameday, First date anniversary"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
+            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
           />
         </label>
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor={dateInputId}
-            className="text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
+        <label className="flex flex-col gap-1 sm:max-w-[220px]">
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Date
-          </label>
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              id={dateInputId}
-              className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600 sm:flex-none sm:min-w-[160px]"
-            />
-            <button
-              type="button"
-              disabled={!canAdd}
-              onClick={handleAdd}
-              className={`flex-shrink-0 rounded-lg px-4 py-2 font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                canAdd
-                  ? "bg-emerald-600 hover:bg-emerald-700"
-                  : "bg-emerald-600"
-              }`}
-            >
-              Add
-            </button>
-          </div>
+          </span>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
+          />
+        </label>
+        <div className="flex items-end">
+          <button
+            type="button"
+            disabled={!canAdd}
+            onClick={handleAdd}
+            className={`rounded-lg px-4 py-2 font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              canAdd ? "bg-emerald-600 hover:bg-emerald-700" : "bg-emerald-600"
+            }`}
+          >
+            Add date
+          </button>
         </div>
       </div>
-      <div className="mt-2 w-full">
+      <div className="mt-2">
         <h4 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
           Added dates
         </h4>
@@ -98,8 +91,8 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
             showGradients={false}
             enableArrowNavigation={false}
             displayScrollbar
-            scrollContainerClassName="max-h-[17.5rem] min-h-[6rem] overflow-y-auto space-y-2 px-1 !bg-white dark:!bg-slate-900"
-            className="w-full p-0"
+            scrollContainerClassName="max-h-[17.5rem] min-h-[6rem] overflow-y-auto space-y-2 pr-1"
+            className="p-0"
             renderItem={(d, idx) => {
               const isBirthday = d.label.toLowerCase() === "birthday";
               const handleRemove = () =>
