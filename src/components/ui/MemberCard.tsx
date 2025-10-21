@@ -31,9 +31,9 @@ const MemberCard: React.FC<MemberCardProps> = ({
   const [activeAction, setActiveAction] = useState<"delete" | "edit" | null>(
     null
   );
-  const [previewAction, setPreviewAction] = useState<
-    "delete" | "edit" | null
-  >(null);
+  const [previewAction, setPreviewAction] = useState<"delete" | "edit" | null>(
+    null
+  );
 
   const resetPosition = useCallback(() => {
     void controls
@@ -249,12 +249,12 @@ const MemberCard: React.FC<MemberCardProps> = ({
     <div className="relative w-full select-none overflow-hidden rounded-xl">
       {currentAction && (
         <div
-          className={`absolute inset-2 flex items-stretch gap-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/85 px-4 py-3 text-white shadow-md ${overlayPointerClass} ${
+          className={`absolute inset-2 flex items-stretch gap-4 overflow-hidden rounded-2xl border border-slate-200/50 bg-white/90 px-4 py-3 text-slate-900 shadow-md shadow-slate-500/20 backdrop-blur-sm transition-colors dark:border-white/15 dark:bg-slate-900/85 dark:text-white dark:shadow-black/40 ${overlayPointerClass} ${
             showEditAction && !showDeleteAction
               ? "justify-start"
               : showDeleteAction && !showEditAction
-                ? "justify-end"
-                : "justify-between"
+              ? "justify-end"
+              : "justify-between"
           }`}
         >
           {showEditAction ? (
@@ -262,7 +262,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
               type="button"
               onClick={handleEditClick}
               aria-label="Edit member"
-              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 px-4 py-4 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 rounded-xl bg-slate-100/80 px-4 py-4 text-slate-900 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-slate-800/70 dark:text-white dark:focus-visible:ring-sky-300 dark:focus-visible:ring-offset-slate-900"
             >
               <FiEdit2 className="text-2xl" />
               <span className="text-[0.65rem] font-semibold uppercase tracking-[0.4em]">
@@ -275,7 +275,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
               type="button"
               onClick={handleDeleteClick}
               aria-label="Delete member"
-              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 px-4 py-4 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 rounded-xl bg-slate-100/80 px-4 py-4 text-slate-900 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-slate-800/70 dark:text-white dark:focus-visible:ring-rose-300 dark:focus-visible:ring-offset-slate-900"
             >
               <FiTrash2 className="text-2xl" />
               <span className="text-[0.65rem] font-semibold uppercase tracking-[0.4em]">
@@ -325,7 +325,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
               showGradients={false}
               enableArrowNavigation={false}
               displayScrollbar
-              scrollContainerClassName="max-h-[8.5rem] min-h-[3.5rem] overflow-y-auto space-y-2 px-1 bg-transparent dark:bg-transparent"
+              scrollContainerClassName="max-h-[7rem] min-h-[3.5rem] overflow-y-auto space-y-2 px-1 bg-transparent dark:bg-transparent"
               className="w-full p-0"
               getItemKey={(item, index) =>
                 `${item.label}-${item.date.getTime()}-${index}`

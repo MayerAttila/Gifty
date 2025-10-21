@@ -39,7 +39,7 @@ const Navbar = () => {
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link
             to="/"
-            className="text-lg font-semibold text-amber-600 dark:text-amber-400"
+            className="text-lg font-bold text-[#d32752] dark:text-[#e6345a]"
           >
             Gifty
           </Link>

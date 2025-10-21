@@ -1,2 +1,24 @@
 @config "../tailwind.config.ts";
 @import "tailwindcss";
+
+:root {
+  color-scheme: light;
+
+  --color-brand: 211 39 82; /* #d32752 */
+  --color-primary: 248 250 252; /* #f8fafc */
+  --color-accent-1: 249 250 251; /* #f9fafb */
+  --color-accent-2: 241 245 249; /* #f1f5f9 */
+  --color-accent-3: 226 232 240; /* #e2e8f0 */
+  --color-accent-4: 209 213 219; /* #d1d5db */
+}
+
+.dark {
+  color-scheme: dark;
+
+  --color-brand: 230 52 90; /* #e6345a */
+  --color-primary: 15 23 42; /* #0f172a */
+  --color-accent-1: 17 24 39; /* #111827 */
+  --color-accent-2: 30 41 59; /* #1e293b */
+  --color-accent-3: 51 65 85; /* #334155 */
+  --color-accent-4: 71 85 105; /* #475569 */
+}
