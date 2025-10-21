@@ -3,6 +3,7 @@ import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import type { Member } from "./AddMemberTypes";
 import OccasionDate from "./OccasionDate";
+import AnimatedList from "./AnimatedList";
 
 interface MemberCardProps extends Member {
   className?: string;
@@ -132,6 +133,114 @@ const MemberCard: React.FC<MemberCardProps> = ({
       );
   }, [specialDates]);
 
+  const sortedOccasions = useMemo(() => {
+    const items: Array<{ label: string; date: Date; nextOccurrence: Date }> =
+      [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const calcNextOccurrence = (original: Date) => {
+      const event = new Date(original);
+      const next = new Date(today);
+      next.setMonth(event.getMonth(), event.getDate());
+      next.setHours(0, 0, 0, 0);
+      if (Number.isNaN(next.getTime())) {
+        return null;
+      }
+      if (next < today) {
+        next.setFullYear(next.getFullYear() + 1);
+      }
+      return next;
+    };
+
+    if (normalizedBirthday) {
+      const next = calcNextOccurrence(normalizedBirthday);
+      if (next) {
+        items.push({
+          label: "Birthday",
+          date: normalizedBirthday,
+          nextOccurrence: next,
+        });
+      }
+    }
+    if (normalizedSpecialDates.length > 0) {
+      normalizedSpecialDates.forEach((entry) => {
+        const next = calcNextOccurrence(entry.date);
+        if (next) {
+          items.push({
+            label: entry.label,
+            date: entry.date,
+            nextOccurrence: next,
+          });
+        }
+      });
+    }
+    const sorted = items.sort(
+      (a, b) => a.nextOccurrence.getTime() - b.nextOccurrence.getTime()
+    );
+    return sorted.map(({ label, date }) => ({ label, date }));
+  }, [normalizedBirthday, normalizedSpecialDates]);
+
+  const genderTone = useMemo(() => {
+    const normalized = (gender ?? "").trim().toLowerCase();
+
+    switch (normalized) {
+      case "male":
+        return {
+          container: "border-sky-200/70 dark:border-sky-600/40",
+          gradient:
+            "bg-gradient-to-br from-sky-50 via-white to-white dark:from-slate-900 dark:via-sky-900/40 dark:to-slate-900",
+          accent: "text-sky-700 dark:text-sky-200",
+        };
+      case "female":
+        return {
+          container: "border-rose-200/70 dark:border-rose-600/40",
+          gradient:
+            "bg-gradient-to-br from-rose-50 via-white to-white dark:from-slate-900 dark:via-rose-900/40 dark:to-slate-900",
+          accent: "text-rose-700 dark:text-rose-200",
+        };
+      case "non-binary":
+      case "nonbinary":
+      case "enby":
+        return {
+          container: "border-amber-200/70 dark:border-amber-600/40",
+          gradient:
+            "bg-gradient-to-br from-amber-50 via-white to-white dark:from-slate-900 dark:via-amber-900/35 dark:to-slate-900",
+          accent: "text-amber-700 dark:text-amber-200",
+        };
+      default:
+        return {
+          container: "border-slate-200/70 dark:border-slate-700/60",
+          gradient:
+            "bg-gradient-to-br from-white via-white to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-900",
+          accent: "text-slate-500 dark:text-slate-400",
+        };
+    }
+  }, [gender]);
+
+  const genderLabel = useMemo(() => {
+    const raw = (gender ?? "").trim();
+    if (!raw) {
+      return "Unspecified";
+    }
+    return raw.replace(/\b\w/g, (char) => char.toUpperCase());
+  }, [gender]);
+  const parsedLikings = useMemo(() => {
+    if (!likings) {
+      return [];
+    }
+    return likings
+      .split(/[,;\n]/)
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }, [likings]);
+
+  const displayedLikings = useMemo(
+    () => parsedLikings.slice(0, 3),
+    [parsedLikings]
+  );
+  const remainingLikings = parsedLikings.length - displayedLikings.length;
+
   return (
     <div className="relative w-full select-none overflow-hidden rounded-xl">
       <div
@@ -190,36 +299,69 @@ const MemberCard: React.FC<MemberCardProps> = ({
           }
         }}
         whileTap={{ scale: 1.03 }}
-        className={`relative z-10 w-full rounded-xl border border-transparent bg-white p-4 shadow-md transition-[background-color,border-color] duration-200 dark:bg-slate-800 dark:shadow-lg ${className}`}
+        className={`relative z-10 flex w-full flex-col gap-4 rounded-xl border ${genderTone.container} ${genderTone.gradient} bg-white dark:bg-slate-900 p-5 shadow-md transition-[background-color,border-color] duration-200 dark:shadow-lg ${className}`}
       >
-        <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-          {name}
-        </h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Connection: {connection}
-        </p>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Gender: {gender}
-        </p>
-        {(normalizedBirthday || normalizedSpecialDates.length > 0) && (
-          <div className="mt-3 space-y-2">
-            {normalizedBirthday && (
-              <OccasionDate label="Birthday" date={normalizedBirthday} />
-            )}
-            {normalizedSpecialDates.map((entry) => (
-              <OccasionDate
-                key={`${entry.label}-${entry.date.getTime()}`}
-                label={entry.label}
-                date={entry.date}
-              />
-            ))}
+        <span className="sr-only">Gender: {genderLabel}</span>
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+            {name}
+          </h2>
+          {connection ? (
+            <span
+              className={`rounded-full border border-white/50 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/10 ${genderTone.accent}`}
+            >
+              {connection}
+            </span>
+          ) : null}
+        </div>
+
+        {sortedOccasions.length > 0 && (
+          <div className="space-y-2">
+            <AnimatedList
+              items={sortedOccasions}
+              showGradients={false}
+              enableArrowNavigation={false}
+              displayScrollbar
+              scrollContainerClassName="max-h-[8.5rem] min-h-[3.5rem] overflow-y-auto space-y-2 px-1 !bg-white dark:!bg-slate-800/80"
+              className="w-full p-0"
+              getItemKey={(item, index) => `${item.label}-${item.date.getTime()}-${index}`}
+              renderItem={(item, index) => (
+                <OccasionDate
+                  label={item.label}
+                  date={item.date}
+                  className={
+                    index === 0
+                      ? "border-emerald-300 bg-emerald-50/60 dark:border-emerald-500/50 dark:bg-emerald-500/10"
+                      : ""
+                  }
+                />
+              )}
+            />
           </div>
         )}
-        {likings && (
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            Likes: {likings}
-          </p>
-        )}
+
+        {/* {displayedLikings.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Likes
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {displayedLikings.map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-emerald-300/70 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:text-emerald-200"
+                >
+                  {item}
+                </span>
+              ))}
+              {remainingLikings > 0 && (
+                <span className="rounded-full px-3 py-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                  +{remainingLikings} more
+                </span>
+              )}
+            </div>
+          </div>
+        )} */}
       </motion.div>
     </div>
   );
