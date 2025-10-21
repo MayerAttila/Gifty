@@ -213,21 +213,6 @@ const MemberCard: React.FC<MemberCardProps> = ({
     }
     return raw.replace(/\b\w/g, (char) => char.toUpperCase());
   }, [gender]);
-  const parsedLikings = useMemo(() => {
-    if (!likings) {
-      return [];
-    }
-    return likings
-      .split(/[,;\n]/)
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-  }, [likings]);
-
-  const displayedLikings = useMemo(
-    () => parsedLikings.slice(0, 3),
-    [parsedLikings]
-  );
-  const remainingLikings = parsedLikings.length - displayedLikings.length;
 
   return (
     <div className="relative w-full select-none overflow-hidden rounded-xl">
@@ -310,7 +295,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
               showGradients={false}
               enableArrowNavigation={false}
               displayScrollbar
-              scrollContainerClassName="max-h-[8.5rem] min-h-[3.5rem] overflow-y-auto space-y-2 px-1 !bg-white dark:!bg-slate-800/80"
+              scrollContainerClassName="max-h-[8.5rem] min-h-[3.5rem] overflow-y-auto space-y-2 px-1 bg-transparent dark:bg-transparent"
               className="w-full p-0"
               getItemKey={(item, index) =>
                 `${item.label}-${item.date.getTime()}-${index}`

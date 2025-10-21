@@ -169,7 +169,7 @@ const AnimatedList = <T,>({
     <div className={`relative mx-auto w-full  ${className}`}>
       <div
         ref={listRef}
-        className={`${scrollContainerClassName} overflow-y-auto rounded-xl bg-[#060010]/60 p-3 sm:p-4 ${
+        className={`${scrollContainerClassName} overflow-y-auto rounded-xl bg-transparent p-3 sm:p-4 ${
           displayScrollbar
             ? "[&::-webkit-scrollbar]:w-[8px] [&::-webkit-scrollbar-track]:bg-[#060010] [&::-webkit-scrollbar-thumb]:bg-[#222] [&::-webkit-scrollbar-thumb]:rounded-[4px]"
             : "scrollbar-hide"
@@ -177,7 +177,7 @@ const AnimatedList = <T,>({
         onScroll={handleScroll}
         style={{
           scrollbarWidth: displayScrollbar ? "thin" : "none",
-          scrollbarColor: "#222 #060010",
+          scrollbarColor: displayScrollbar ? "#222 transparent" : "transparent",
         }}
       >
         {resolvedItems.map((item, index) => {

@@ -10,23 +10,16 @@ const reviveMember = (candidate: unknown): Member | null => {
   if (typeof candidate !== "object" || candidate === null) {
     return null;
   }
-  const {
-    id,
-    name,
-    gender,
-    connection,
-    likings,
-    birthday,
-    specialDates,
-  } = candidate as {
-    id?: unknown;
-    name?: unknown;
-    gender?: unknown;
-    connection?: unknown;
-    likings?: unknown;
-    birthday?: unknown;
-    specialDates?: unknown;
-  };
+  const { id, name, gender, connection, likings, birthday, specialDates } =
+    candidate as {
+      id?: unknown;
+      name?: unknown;
+      gender?: unknown;
+      connection?: unknown;
+      likings?: unknown;
+      birthday?: unknown;
+      specialDates?: unknown;
+    };
 
   if (
     typeof id !== "number" ||
@@ -162,6 +155,7 @@ const Members = () => {
       <div className="flex flex-col gap-6">
         <AnimatedList<Member>
           items={members}
+          showGradients={false}
           getItemKey={(member) => member.id}
           renderItem={(member, _index, isSelected) => (
             <MemberCard
