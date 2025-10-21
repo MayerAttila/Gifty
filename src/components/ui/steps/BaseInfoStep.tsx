@@ -23,10 +23,10 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
   ).map((s) => s);
 
   return (
-    <div className="flex flex-col gap-4 py-4">
+    <div className="flex flex-col gap-6 py-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label className="flex flex-col gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
             Name
           </span>
           <input
@@ -35,11 +35,11 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
             type="text"
             value={formState.name}
             onChange={onFieldChange}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
+            className="rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
           />
         </label>
-        <label className="flex flex-col gap-1 sm:max-w-[220px]">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label className="flex flex-col gap-2 sm:max-w-[220px]">
+          <span className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
             Birthday
           </span>
           <input
@@ -47,12 +47,12 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
             type="date"
             value={formState.birthday}
             onChange={onFieldChange}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
+            className="rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
           />
         </label>
 
-        <fieldset className="flex flex-col gap-2">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <fieldset className="flex flex-col gap-3 rounded-xl border border-accent-2/60 bg-primary p-4">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
             Gender
           </legend>
           <div className="flex flex-wrap gap-3">
@@ -62,10 +62,10 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
               return (
                 <label
                   key={value}
-                  className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${
+                  className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition ${
                     isSelected
-                      ? "border-emerald-400 bg-emerald-50 font-semibold shadow-sm shadow-emerald-200/70 dark:border-emerald-600 dark:bg-emerald-900/30"
-                      : "border-slate-300 bg-white hover:border-emerald-200 hover:bg-emerald-50/50 dark:border-slate-700 dark:bg-slate-900"
+                      ? "border-brand bg-brand/15 text-brand"
+                      : "border-accent-2/60 text-contrast/80 hover:border-brand/40 hover:text-brand"
                   }`}
                 >
                   <input
@@ -74,32 +74,22 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
                     value={value}
                     checked={isSelected}
                     onChange={onFieldChange}
-                    className="accent-emerald-500"
+                    className="accent-brand"
                   />
-                  <span className="text-slate-700 dark:text-slate-200">
-                    {option}
-                  </span>
+                  <span>{option}</span>
                 </label>
               );
             })}
           </div>
         </fieldset>
       </div>
-      <div className="mt-2">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+      <div className="space-y-3">
+        <label className="flex flex-col gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
             Connection
           </span>
-          <input
-            type="text"
-            name="connection"
-            placeholder="e.g. Sister, College friend, Neighbor"
-            value={formState.connection}
-            onChange={onFieldChange}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
-          />
         </label>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           {relationshipSuggestions.map((rel) => {
             const isActive =
               formState.connection.toLowerCase() === rel.toLowerCase();
@@ -108,10 +98,10 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
                 key={rel}
                 type="button"
                 onClick={() => onSelectConnection(rel)}
-                className={`rounded-full px-3 py-1.5 text-sm transition ${
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition ${
                   isActive
-                    ? "bg-emerald-500 text-white shadow shadow-emerald-400/50"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                    ? "bg-brand text-contrast shadow-sm shadow-brand/40"
+                    : "bg-primary text-contrast border border-brand"
                 }`}
               >
                 {rel}

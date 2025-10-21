@@ -160,11 +160,7 @@ const Members = () => {
           renderItem={(member, _index, isSelected) => (
             <MemberCard
               {...member}
-              className={`${
-                isSelected
-                  ? "border-emerald-400 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-900/20"
-                  : ""
-              }`}
+              className={`${isSelected ? " bg-primary" : ""}`}
               onDelete={() => handleDeleteMember(member.id)}
               onEdit={() => handleEditMember(member)}
             />
@@ -172,14 +168,14 @@ const Members = () => {
           onItemSelect={(member) => {
             console.log("Selected member:", member);
           }}
-          className="w-full"
+          className="w-full text-contrast"
           scrollContainerClassName="min-h-[22rem] max-h-[68vh] sm:max-h-[72vh] lg:max-h-[78vh] 2xl:max-h-[82vh]"
         />
         <button
           onClick={() => {
             setIsAddMemberOpen(true);
           }}
-          className="m-3 rounded-xl border-2 border-green-400 bg-green-300 p-3 text-center font-bold dark:border-green-600 dark:bg-green-900"
+          className="m-3 rounded-xl border border-brand/70 bg-brand px-4 py-3 text-center font-semibold text-primary shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary"
         >
           Add Member
         </button>

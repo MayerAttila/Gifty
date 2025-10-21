@@ -107,6 +107,19 @@ const Test = () => {
             },
           ],
         },
+        {
+          title: "Contrast · Text",
+          description: "Dedicated contrast token for body text and essential iconography.",
+          items: [
+            {
+              label: "Contrast",
+              token: "--color-contrast",
+              tailwind: "text-contrast / bg-contrast",
+              lightHex: "#475569",
+              darkHex: "#f8fafc",
+            },
+          ],
+        },
       ] as const,
     []
   );

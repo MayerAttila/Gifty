@@ -11,6 +11,7 @@ export default {
         "accent-2": "rgb(var(--color-accent-2) / <alpha-value>)",
         "accent-3": "rgb(var(--color-accent-3) / <alpha-value>)",
         "accent-4": "rgb(var(--color-accent-4) / <alpha-value>)",
+        contrast: "rgb(var(--color-contrast) / <alpha-value>)",
       },
     },
   },

@@ -198,21 +198,23 @@ const MemberCard: React.FC<MemberCardProps> = ({
     switch (normalized) {
       case "male":
         return {
-          gradient:
-            "bg-gradient-to-br from-sky-200 via-white to-sky-200 dark:from-slate-900 dark:via-sky-900/40 dark:to-slate-900",
-          accent: "text-sky-700 dark:text-sky-200",
+          background: "bg-gradient-to-br from-brand/20 via-primary to-brand/20",
+          accent: "text-accent-2",
+          badge: "border-brand/40 bg-brand/10 text-brand",
         };
       case "female":
         return {
-          gradient:
-            "bg-gradient-to-br from-rose-200 via-white to-rose-200 dark:from-slate-900 dark:via-rose-900/40 dark:to-slate-900",
-          accent: "text-rose-700 dark:text-rose-200",
+          background:
+            "bg-gradient-to-br from-accent-2/10 via-brand/20 to-accent-1/10",
+          accent: "text-brand",
+          badge: "border-brand/40 bg-brand/10 text-brand",
         };
       default:
         return {
-          gradient:
-            "bg-gradient-to-br from-slate-50 via-white to-white dark:from-slate-900 dark:via-slate-800/40 dark:to-slate-900",
-          accent: "text-slate-700 dark:text-slate-200",
+          background:
+            "bg-gradient-to-br from-accent-3/20 via-primary to-accent-2/15",
+          accent: "text-contrast",
+          badge: "border-contrast/20 bg-contrast/10 text-contrast",
         };
     }
   }, [gender]);
@@ -249,7 +251,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
     <div className="relative w-full select-none overflow-hidden rounded-xl">
       {currentAction && (
         <div
-          className={`absolute inset-2 flex items-stretch gap-4 overflow-hidden rounded-2xl border border-slate-200/50 bg-white/90 px-4 py-3 text-slate-900 shadow-md shadow-slate-500/20 backdrop-blur-sm transition-colors dark:border-white/15 dark:bg-slate-900/85 dark:text-white dark:shadow-black/40 ${overlayPointerClass} ${
+          className={`absolute inset-2 flex items-stretch gap-4 overflow-hidden rounded-2xl border border-accent-2/60 bg-primary px-4 py-3 text-contrast shadow-md shadow-slate-500/15 backdrop-blur-sm transition-colors ${overlayPointerClass} ${
             showEditAction && !showDeleteAction
               ? "justify-start"
               : showDeleteAction && !showEditAction
@@ -262,9 +264,9 @@ const MemberCard: React.FC<MemberCardProps> = ({
               type="button"
               onClick={handleEditClick}
               aria-label="Edit member"
-              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 rounded-xl bg-slate-100/80 px-4 py-4 text-slate-900 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-slate-800/70 dark:text-white dark:focus-visible:ring-sky-300 dark:focus-visible:ring-offset-slate-900"
+              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 rounded-xl px-4 py-4 text-contrast "
             >
-              <FiEdit2 className="text-2xl" />
+              <FiEdit2 className="text-2xl text-brand" />
               <span className="text-[0.65rem] font-semibold uppercase tracking-[0.4em]">
                 Edit
               </span>
@@ -275,9 +277,9 @@ const MemberCard: React.FC<MemberCardProps> = ({
               type="button"
               onClick={handleDeleteClick}
               aria-label="Delete member"
-              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 rounded-xl bg-slate-100/80 px-4 py-4 text-slate-900 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-slate-800/70 dark:text-white dark:focus-visible:ring-rose-300 dark:focus-visible:ring-offset-slate-900"
+              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 rounded-xl px-4 py-4 text-contrast "
             >
-              <FiTrash2 className="text-2xl" />
+              <FiTrash2 className="text-2xl text-brand" />
               <span className="text-[0.65rem] font-semibold uppercase tracking-[0.4em]">
                 Delete
               </span>
@@ -302,16 +304,14 @@ const MemberCard: React.FC<MemberCardProps> = ({
           }
         }}
         whileTap={{ scale: 1.03 }}
-        className={`relative z-10 flex w-full flex-col gap-4 rounded-xl  ${genderTone.gradient} bg-white dark:bg-slate-900 p-5 shadow-md transition-[background-color,border-color] duration-200 dark:shadow-lg ${className}`}
+        className={`relative z-10 flex w-full flex-col gap-4 rounded-xl ${genderTone.background} bg-primary p-5 text-contrast shadow-md transition-[background-color,border-color] duration-200 ${className}`}
       >
         <span className="sr-only">Gender: {genderLabel}</span>
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-            {name}
-          </h2>
+          <h2 className="text-xl font-semibold text-contrast">{name}</h2>
           {connection ? (
             <span
-              className={`rounded-full border border-white/50 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/10 ${genderTone.accent}`}
+              className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm ${genderTone.badge}`}
             >
               {connection}
             </span>
@@ -335,9 +335,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
                   label={item.label}
                   date={item.date}
                   className={
-                    index === 0
-                      ? "border-emerald-300 bg-emerald-50/60 dark:border-emerald-500/50 dark:bg-emerald-500/10"
-                      : ""
+                    index === 0 ? "border-brand/60 bg-brand/10 text-brand" : ""
                   }
                 />
               )}

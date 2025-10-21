@@ -39,10 +39,10 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
   );
 
   return (
-    <div className="flex flex-col gap-4 py-4">
+    <div className="flex flex-col gap-6 py-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label className="flex flex-col gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
             Occasion name
           </span>
           <input
@@ -50,18 +50,18 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
             placeholder="e.g. Nameday, First date anniversary"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
+            className="rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
           />
         </label>
-        <label className="flex flex-col gap-1 sm:max-w-[220px]">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label className="flex flex-col gap-2 sm:max-w-[220px]">
+          <span className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
             Date
           </span>
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-emerald-600"
+            className="rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
           />
         </label>
         <div className="flex items-end">
@@ -69,8 +69,10 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
             type="button"
             disabled={!canAdd}
             onClick={handleAdd}
-            className={`rounded-lg px-4 py-2 font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
-              canAdd ? "bg-emerald-600 hover:bg-emerald-700" : "bg-emerald-600"
+            className={`rounded-lg px-4 py-2 text-sm font-semibold text-primary transition disabled:cursor-not-allowed disabled:opacity-50 ${
+              canAdd
+                ? "bg-brand shadow-sm shadow-brand/40 hover:-translate-y-0.5 hover:shadow-md"
+                : "bg-brand"
             }`}
           >
             Add date
@@ -78,11 +80,11 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
         </div>
       </div>
       <div className="mt-2">
-        <h4 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+        <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide text-contrast/80">
           Added dates
         </h4>
         {combinedDates.length === 0 ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-contrast/50">
             No dates yet.
           </p>
         ) : (
@@ -199,7 +201,7 @@ function OccasionListItem({
   return (
     <div className="relative w-full overflow-hidden rounded-lg">
       <div
-        className={`absolute inset-0 flex items-center justify-end bg-red-600 pr-3 transition-opacity duration-200 ${
+        className={`absolute inset-0 flex items-center justify-end bg-brand/80 pr-3 transition-opacity duration-200 ${
           activeAction === "delete"
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-60"
@@ -208,7 +210,7 @@ function OccasionListItem({
         <button
           type="button"
           onClick={handleDeleteClick}
-          className="flex h-full items-center justify-center rounded-full bg-white/10 px-3 py-1 text-sm font-semibold uppercase tracking-widest text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          className="flex h-full items-center justify-center rounded-full bg-primary/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/70 focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
         >
           Delete
         </button>

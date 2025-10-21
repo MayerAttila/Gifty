@@ -25,12 +25,12 @@ const OccasionDate: React.FC<OccasionDateProps> = ({
 
   return (
     <div
-      className={`flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 ${className}`}
+      className={`flex items-center justify-between gap-4 rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast ${className}`}
     >
-      <span className="font-medium text-slate-700 dark:text-slate-200">
+      <span className="font-medium text-contrast">
         {label}
       </span>
-      <span className="text-slate-600 dark:text-slate-300">
+      <span className="text-contrast/70">
         {formattedDate}
       </span>
     </div>
