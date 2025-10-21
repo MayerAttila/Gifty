@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import type { Member } from "./AddMemberTypes";
 import OccasionDate from "./OccasionDate";
 import AnimatedList from "./AnimatedList";
@@ -11,7 +12,7 @@ interface MemberCardProps extends Member {
   onEdit?: () => void;
 }
 
-const ACTION_OFFSET = 80;
+const ACTION_OFFSET = 116;
 const SWIPE_THRESHOLD = 30;
 
 const MemberCard: React.FC<MemberCardProps> = ({
@@ -30,9 +31,13 @@ const MemberCard: React.FC<MemberCardProps> = ({
   const [activeAction, setActiveAction] = useState<"delete" | "edit" | null>(
     null
   );
+  const [previewAction, setPreviewAction] = useState<
+    "delete" | "edit" | null
+  >(null);
 
   const resetPosition = useCallback(() => {
     setActiveAction(null);
+    setPreviewAction(null);
     controls.start({
       x: 0,
       opacity: 1,
@@ -43,6 +48,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
   const snapToAction = useCallback(
     (direction: "delete" | "edit") => {
       setActiveAction(direction);
+      setPreviewAction(direction);
       controls.start({
         x: direction === "delete" ? -ACTION_OFFSET : ACTION_OFFSET,
         opacity: 1,
@@ -67,6 +73,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
       transition: { duration: 0.25, ease: "easeIn" },
     });
     onDelete();
+    setPreviewAction(null);
   }, [controls, isDeleting, onDelete, resetPosition]);
 
   const handleDragEnd = useCallback(
@@ -79,6 +86,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
         snapToAction("edit");
       } else {
         resetPosition();
+        setPreviewAction(null);
       }
     },
     [resetPosition, snapToAction]
@@ -214,48 +222,66 @@ const MemberCard: React.FC<MemberCardProps> = ({
     return raw.replace(/\b\w/g, (char) => char.toUpperCase());
   }, [gender]);
 
+  const currentAction = previewAction ?? activeAction;
+  const showEditAction = currentAction === "edit";
+  const showDeleteAction = currentAction === "delete";
+
+  const handleDrag = useCallback(
+    (_event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+      if (isDeleting) {
+        return;
+      }
+      if (info.offset.x > 10) {
+        setPreviewAction("edit");
+      } else if (info.offset.x < -10) {
+        setPreviewAction("delete");
+      } else {
+        setPreviewAction(null);
+      }
+    },
+    [isDeleting]
+  );
+
   return (
     <div className="relative w-full select-none overflow-hidden rounded-xl">
-      <div
-        className={`absolute inset-0 flex items-center justify-start bg-blue-600 pl-3 transition-opacity duration-200 ${
-          activeAction === "edit"
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-50"
-        }`}
-      >
-        <button
-          type="button"
-          onClick={handleEditClick}
-          className="flex h-full w-full items-center justify-start bg-transparent text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+      {currentAction && (
+        <div
+          className={`absolute inset-2 flex items-stretch gap-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/85 px-4 py-3 text-white shadow-md ${
+            showEditAction && !showDeleteAction
+              ? "justify-start"
+              : showDeleteAction && !showEditAction
+                ? "justify-end"
+                : "justify-between"
+          }`}
         >
-          <span
-            className="text-lg font-semibold uppercase tracking-[0.15em] text-white"
-            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-          >
-            Edit
-          </span>
-        </button>
-      </div>
-      <div
-        className={`absolute inset-0 flex items-center justify-end bg-red-600 pr-3 transition-opacity duration-200 ${
-          activeAction === "delete"
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-50"
-        }`}
-      >
-        <button
-          type="button"
-          onClick={handleDeleteClick}
-          className="flex h-full w-full items-center justify-end bg-transparent text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-        >
-          <span
-            className="text-lg font-semibold uppercase tracking-[0.15em] text-white"
-            style={{ writingMode: "vertical-rl" }}
-          >
-            Delete
-          </span>
-        </button>
-      </div>
+          {showEditAction ? (
+            <button
+              type="button"
+              onClick={handleEditClick}
+              aria-label="Edit member"
+              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 px-4 py-4 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              <FiEdit2 className="text-2xl" />
+              <span className="text-[0.65rem] font-semibold uppercase tracking-[0.4em]">
+                Edit
+              </span>
+            </button>
+          ) : null}
+          {showDeleteAction ? (
+            <button
+              type="button"
+              onClick={handleDeleteClick}
+              aria-label="Delete member"
+              className="flex min-w-[7rem] flex-col items-center justify-center gap-2 px-4 py-4 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              <FiTrash2 className="text-2xl" />
+              <span className="text-[0.65rem] font-semibold uppercase tracking-[0.4em]">
+                Delete
+              </span>
+            </button>
+          ) : null}
+        </div>
+      )}
       <motion.div
         drag={isDeleting ? false : "x"}
         dragConstraints={{ left: -160, right: 160 }}
@@ -264,7 +290,12 @@ const MemberCard: React.FC<MemberCardProps> = ({
         animate={controls}
         onDragStart={() => {
           controls.stop();
+          if (!isDeleting) {
+            setActiveAction(null);
+            setPreviewAction(null);
+          }
         }}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         onTap={() => {
           if (activeAction) {
