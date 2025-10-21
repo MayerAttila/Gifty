@@ -36,13 +36,16 @@ const MemberCard: React.FC<MemberCardProps> = ({
   >(null);
 
   const resetPosition = useCallback(() => {
-    setActiveAction(null);
-    setPreviewAction(null);
-    controls.start({
-      x: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 500, damping: 40 },
-    });
+    void controls
+      .start({
+        x: 0,
+        opacity: 1,
+        transition: { type: "spring", stiffness: 500, damping: 40 },
+      })
+      .then(() => {
+        setActiveAction(null);
+        setPreviewAction(null);
+      });
   }, [controls]);
 
   const snapToAction = useCallback(
@@ -225,6 +228,8 @@ const MemberCard: React.FC<MemberCardProps> = ({
   const currentAction = previewAction ?? activeAction;
   const showEditAction = currentAction === "edit";
   const showDeleteAction = currentAction === "delete";
+  const overlayPointerClass =
+    activeAction !== null ? "pointer-events-auto" : "pointer-events-none";
 
   const handleDrag = useCallback(
     (_event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
@@ -235,8 +240,6 @@ const MemberCard: React.FC<MemberCardProps> = ({
         setPreviewAction("edit");
       } else if (info.offset.x < -10) {
         setPreviewAction("delete");
-      } else {
-        setPreviewAction(null);
       }
     },
     [isDeleting]
@@ -246,7 +249,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
     <div className="relative w-full select-none overflow-hidden rounded-xl">
       {currentAction && (
         <div
-          className={`absolute inset-2 flex items-stretch gap-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/85 px-4 py-3 text-white shadow-md ${
+          className={`absolute inset-2 flex items-stretch gap-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/85 px-4 py-3 text-white shadow-md ${overlayPointerClass} ${
             showEditAction && !showDeleteAction
               ? "justify-start"
               : showDeleteAction && !showEditAction
@@ -290,10 +293,6 @@ const MemberCard: React.FC<MemberCardProps> = ({
         animate={controls}
         onDragStart={() => {
           controls.stop();
-          if (!isDeleting) {
-            setActiveAction(null);
-            setPreviewAction(null);
-          }
         }}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
