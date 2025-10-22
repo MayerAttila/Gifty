@@ -1,31 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import Stepper2 from "../components/ui/Stepper2";
-import BaseInfoStep2 from "../components/ui/steps/BaseInfoStep2";
-import LikeingStep2 from "../components/ui/steps/LikeingsStep2";
-import SpecialDatesStep2 from "../components/ui/steps/SpecialDatesStep2";
 
 const Test = () => {
-  const steps = [{ name: "Step 1" }, { name: "Step 2" }, { name: "Step 3" }];
-
-  const [activeStep, setActiveStep] = useState<number>(0);
-
-  const renderForm = () => {
-    switch (activeStep) {
-      case 0:
-        return <BaseInfoStep2 />;
-      case 1:
-        return <LikeingStep2 />;
-      case 2:
-        return <SpecialDatesStep2 />;
-      default:
-        return null;
-    }
-  };
-
-  useEffect(() => {
-    console.log("activeStep:", activeStep);
-  }, [activeStep]);
-
   const palette = useMemo(
     () =>
       [
@@ -44,7 +19,8 @@ const Test = () => {
         },
         {
           title: "Primary · Surface",
-          description: "Default surface tone for cards, inputs, and backgrounds.",
+          description:
+            "Default surface tone for cards, inputs, and backgrounds.",
           items: [
             {
               label: "Primary",
@@ -57,7 +33,8 @@ const Test = () => {
         },
         {
           title: "Accent 1 · Softest Neutral",
-          description: "Lightest supporting neutral; darkest base in dark mode.",
+          description:
+            "Lightest supporting neutral; darkest base in dark mode.",
           items: [
             {
               label: "Accent 1",
@@ -70,7 +47,8 @@ const Test = () => {
         },
         {
           title: "Accent 2 · Soft Neutral",
-          description: "Secondary surface shade for cards and subtle separators.",
+          description:
+            "Secondary surface shade for cards and subtle separators.",
           items: [
             {
               label: "Accent 2",
@@ -83,7 +61,8 @@ const Test = () => {
         },
         {
           title: "Accent 3 · Mid Neutral",
-          description: "Mid-tone neutral that works for borders and muted backgrounds.",
+          description:
+            "Mid-tone neutral that works for borders and muted backgrounds.",
           items: [
             {
               label: "Accent 3",
@@ -96,7 +75,8 @@ const Test = () => {
         },
         {
           title: "Accent 4 · Deep Neutral",
-          description: "Highest contrast neutral, ideal for typography and icons.",
+          description:
+            "Highest contrast neutral, ideal for typography and icons.",
           items: [
             {
               label: "Accent 4",
@@ -109,7 +89,8 @@ const Test = () => {
         },
         {
           title: "Contrast · Text",
-          description: "Dedicated contrast token for body text and essential iconography.",
+          description:
+            "Dedicated contrast token for body text and essential iconography.",
           items: [
             {
               label: "Contrast",
@@ -166,39 +147,6 @@ const Test = () => {
 
   return (
     <div className="flex flex-col gap-8">
-      <Stepper2 steps={steps} activeStep={activeStep} />
-
-      {renderForm()}
-
-      <div className="flex justify-between">
-        <button
-          disabled={activeStep === 0}
-          onClick={() => {
-            setActiveStep(activeStep - 1);
-          }}
-          className={
-            activeStep === 0
-              ? "rounded-2xl bg-red-500/60 p-2"
-              : "rounded-2xl bg-red-500 p-2"
-          }
-        >
-          prev
-        </button>
-        <button
-          disabled={activeStep === steps.length - 1}
-          onClick={() => {
-            setActiveStep(activeStep + 1);
-          }}
-          className={
-            activeStep === steps.length - 1
-              ? "rounded-2xl bg-green-500/60 p-2"
-              : "rounded-2xl bg-green-500 p-2"
-          }
-        >
-          next
-        </button>
-      </div>
-
       <section
         aria-labelledby="color-palette-heading"
         className="rounded-2xl border border-slate-200/60 bg-white/70 p-6 shadow-md shadow-slate-500/10 backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/70 dark:shadow-black/30"
@@ -211,9 +159,11 @@ const Test = () => {
             Color Palette
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            These brand and neutral tokens are defined in <code>src/style.css</code> and mapped into
-            Tailwind via <code>tailwind.config.ts</code>. Use utilities like <code>text-brand</code>,
-            <code>bg-primary</code>, or <code>border-accent-3/60</code> and they will adapt to dark mode.
+            These brand and neutral tokens are defined in{" "}
+            <code>src/style.css</code> and mapped into Tailwind via{" "}
+            <code>tailwind.config.ts</code>. Use utilities like{" "}
+            <code>text-brand</code>,<code>bg-primary</code>, or{" "}
+            <code>border-accent-3/60</code> and they will adapt to dark mode.
           </p>
         </div>
 
