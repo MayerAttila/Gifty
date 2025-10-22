@@ -392,7 +392,7 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
             onClick={onClose}
           />
           <motion.div
-            className="relative z-10 w-full max-w-4xl max-h-[95vh] overflow-hidden rounded-t-3xl bg-white p-0 shadow-2xl dark:bg-slate-900 md:rounded-3xl"
+            className="relative z-10 w-full max-w-4xl max-h-[95vh] overflow-hidden rounded-t-3xl bg-white p-0 dark:bg-slate-900 md:rounded-3xl"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -493,6 +493,14 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
                       ...prev,
                       specialDates: prev.specialDates.filter(
                         (_, i) => i !== index
+                      ),
+                    }))
+                  }
+                  onUpdateDate={(index, entry) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      specialDates: prev.specialDates.map((item, i) =>
+                        i === index ? entry : item
                       ),
                     }))
                   }

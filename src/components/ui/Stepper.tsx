@@ -83,7 +83,7 @@ export default function Stepper({
       {...rest}
     >
       <div
-        className={`w-full rounded-2xl bg-transparent shadow-xl ${
+        className={`w-full rounded-2xl bg-transparent  ${
           stepCircleContainerClassName ?? ""
         }`}
       >

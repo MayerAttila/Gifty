@@ -277,7 +277,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
               className="flex min-w-[7rem] flex-col items-center justify-center gap-2 rounded-xl px-4 py-4 text-contrast "
             >
               <FiEdit2 className="text-2xl text-brand" />
-              <span className="text-[0.65rem] font-semibold uppercase tracking-[0.4em]">
+              <span className="text-[0.65rem] font-bold text-brand uppercase tracking-[0.4em]">
                 Edit
               </span>
             </button>
@@ -290,7 +290,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
               className="flex min-w-[7rem] flex-col items-center justify-center gap-2 rounded-xl px-4 py-4 text-contrast "
             >
               <FiTrash2 className="text-2xl text-brand" />
-              <span className="text-[0.65rem] font-semibold uppercase tracking-[0.4em]">
+              <span className="text-[0.65rem] font-bold text-brand uppercase tracking-[0.4em]">
                 Delete
               </span>
             </button>
