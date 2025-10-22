@@ -30,45 +30,51 @@ const reviveMember = (candidate: unknown): Member | null => {
     return null;
   }
 
-  let normalizedBirthday: Date | undefined;
+  const datesMap = new Map<string, { label: string; date: Date }>();
+
+  if (Array.isArray(specialDates)) {
+    specialDates.forEach((entry) => {
+      if (typeof entry !== "object" || entry === null) {
+        return;
+      }
+      const { label, date } = entry as {
+        label?: unknown;
+        date?: unknown;
+      };
+      if (typeof label !== "string") {
+        return;
+      }
+      const trimmedLabel = label.trim();
+      if (!trimmedLabel) {
+        return;
+      }
+      const parsed =
+        date instanceof Date
+          ? new Date(date.getTime())
+          : typeof date === "string"
+          ? new Date(date)
+          : null;
+      if (!parsed || Number.isNaN(parsed.getTime())) {
+        return;
+      }
+      datesMap.set(trimmedLabel.toLowerCase(), {
+        label: trimmedLabel,
+        date: parsed,
+      });
+    });
+  }
+
   if (typeof birthday === "string" || birthday instanceof Date) {
     const parsed =
-      birthday instanceof Date ? birthday : new Date(birthday as string);
+      birthday instanceof Date
+        ? new Date(birthday.getTime())
+        : new Date(birthday);
     if (!Number.isNaN(parsed.getTime())) {
-      normalizedBirthday = parsed;
+      datesMap.set("birthday", { label: "Birthday", date: parsed });
     }
   }
 
-  let normalizedSpecialDates: Member["specialDates"];
-  if (Array.isArray(specialDates)) {
-    const revived = specialDates
-      .map((entry) => {
-        if (typeof entry !== "object" || entry === null) {
-          return null;
-        }
-        const { label, date } = entry as {
-          label?: unknown;
-          date?: unknown;
-        };
-        if (typeof label !== "string") {
-          return null;
-        }
-        if (typeof date !== "string" && !(date instanceof Date)) {
-          return null;
-        }
-        const parsed = date instanceof Date ? date : new Date(date);
-        if (Number.isNaN(parsed.getTime())) {
-          return null;
-        }
-        return { label, date: parsed };
-      })
-      .filter(
-        (entry): entry is { label: string; date: Date } => entry !== null
-      );
-    if (revived.length > 0) {
-      normalizedSpecialDates = revived;
-    }
-  }
+  const normalizedSpecialDates = Array.from(datesMap.values());
 
   return {
     id,
@@ -76,8 +82,9 @@ const reviveMember = (candidate: unknown): Member | null => {
     gender,
     connection,
     ...(typeof likings === "string" ? { likings } : {}),
-    ...(normalizedBirthday ? { birthday: normalizedBirthday } : {}),
-    ...(normalizedSpecialDates ? { specialDates: normalizedSpecialDates } : {}),
+    ...(normalizedSpecialDates.length > 0
+      ? { specialDates: normalizedSpecialDates }
+      : {}),
   };
 };
 
@@ -102,9 +109,56 @@ const loadMembersFromStorage = (): Member[] => {
   }
 };
 
+const ensureDateInstance = (value: Date | string): Date | null => {
+  if (value instanceof Date) {
+    const cloned = new Date(value.getTime());
+    return Number.isNaN(cloned.getTime()) ? null : cloned;
+  }
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  return null;
+};
+
+const normalizeSpecialDatesFromForm = (
+  specialDates: AddMemberFormValues["specialDates"],
+  fallbackBirthday?: Date | string
+): Member["specialDates"] | undefined => {
+  const map = new Map<string, { label: string; date: Date }>();
+
+  if (specialDates) {
+    specialDates.forEach((entry) => {
+      const label = entry.label?.trim();
+      if (!label) {
+        return;
+      }
+      const parsed = ensureDateInstance(entry.date);
+      if (!parsed) {
+        return;
+      }
+      map.set(label.toLowerCase(), { label, date: parsed });
+    });
+  }
+
+  const birthdayCandidate = fallbackBirthday
+    ? ensureDateInstance(fallbackBirthday)
+    : null;
+
+  if (birthdayCandidate) {
+    map.set("birthday", { label: "Birthday", date: birthdayCandidate });
+  }
+
+  if (map.size === 0) {
+    return undefined;
+  }
+  return Array.from(map.values());
+};
+
 const Members = () => {
   const [members, setMembers] = useState<Member[]>(loadMembersFromStorage);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -133,22 +187,70 @@ const Members = () => {
   };
 
   const handleEditMember = (member: Member) => {
-    console.log("Edit member:", member);
+    setEditingMember(member);
+    setIsAddMemberOpen(true);
   };
 
   const handleAddMember = useCallback(
     (data: AddMemberFormValues) => {
+      const normalizedDates = normalizeSpecialDatesFromForm(data.specialDates);
       setMembers((prev) => [
         ...prev,
         {
           id: nextMemberId,
-          ...data,
+          name: data.name,
+          gender: data.gender,
+          connection: data.connection,
+          ...(data.likings ? { likings: data.likings } : {}),
+          ...(normalizedDates ? { specialDates: normalizedDates } : {}),
         },
       ]);
       setIsAddMemberOpen(false);
+      setEditingMember(null);
     },
     [nextMemberId]
   );
+
+  const handleUpdateMember = useCallback(
+    (data: AddMemberFormValues) => {
+      if (!editingMember) {
+        return;
+      }
+
+      const existingBirthday =
+        editingMember.specialDates?.find(
+          (entry) => entry.label.toLowerCase() === "birthday"
+        )?.date ?? null;
+
+      const normalizedDates = normalizeSpecialDatesFromForm(
+        data.specialDates,
+        existingBirthday ?? undefined
+      );
+
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.id === editingMember.id
+            ? {
+                id: member.id,
+                name: data.name,
+                gender: data.gender,
+                connection: data.connection,
+                ...(data.likings ? { likings: data.likings } : {}),
+                ...(normalizedDates ? { specialDates: normalizedDates } : {}),
+              }
+            : member
+        )
+      );
+      setIsAddMemberOpen(false);
+      setEditingMember(null);
+    },
+    [editingMember]
+  );
+
+  const handleClosePanel = useCallback(() => {
+    setIsAddMemberOpen(false);
+    setEditingMember(null);
+  }, []);
 
   return (
     <>
@@ -173,6 +275,7 @@ const Members = () => {
         />
         <button
           onClick={() => {
+            setEditingMember(null);
             setIsAddMemberOpen(true);
           }}
           className="m-3 rounded-xl border border-brand/70 bg-brand px-4 py-3 text-center font-semibold text-primary shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary"
@@ -182,8 +285,10 @@ const Members = () => {
       </div>
       <AddMemberPanel
         open={isAddMemberOpen}
-        onClose={() => setIsAddMemberOpen(false)}
-        onSubmit={handleAddMember}
+        onClose={handleClosePanel}
+        onSubmit={editingMember ? handleUpdateMember : handleAddMember}
+        mode={editingMember ? "edit" : "create"}
+        editingMember={editingMember}
       />
     </>
   );

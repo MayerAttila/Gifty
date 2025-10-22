@@ -11,7 +11,11 @@ import { AnimatePresence, motion, useDragControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import { FiCheck, FiCircle, FiDisc } from "react-icons/fi";
 import Stepper, { Step } from "./Stepper";
-import type { AddMemberFormValues, FormState } from "../../types/add-member";
+import type {
+  AddMemberFormValues,
+  FormState,
+  Member,
+} from "../../types/add-member";
 import BaseInfoStep from "./steps/BaseInfoStep";
 import LikingsStep from "./steps/LikingsStep";
 import SpecialDatesStep from "./steps/SpecialDatesStep";
@@ -23,17 +27,84 @@ interface AddMemberPanelProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: AddMemberFormValues) => void;
+  mode?: "create" | "edit";
+  editingMember?: Member | null;
 }
 
 // FormState type imported from src/types/add-member
 
-const emptyFormState: FormState = {
+const createEmptyFormState = (): FormState => ({
   name: "",
   gender: "male",
   birthday: "",
   connection: "",
   likings: "",
   specialDates: [],
+});
+
+const toDateInputValue = (date: Date) => {
+  const iso = date.toISOString();
+  return iso.slice(0, 10);
+};
+
+const toFormState = (
+  source?: Member | AddMemberFormValues | (Member & { birthday?: Date }) | null
+): FormState => {
+  const base = createEmptyFormState();
+  if (!source) {
+    return base;
+  }
+
+  const normalizedGender = source.gender
+    ? source.gender.toLowerCase()
+    : base.gender;
+
+  const normalizedSpecialDates: FormState["specialDates"] = [];
+  let birthdayValue = "";
+
+  (source.specialDates ?? []).forEach((entry) => {
+    const { label, date } = entry;
+    if (typeof label !== "string") {
+      return;
+    }
+    const trimmedLabel = label.trim();
+    if (!trimmedLabel) {
+      return;
+    }
+    const parsed =
+      date instanceof Date ? new Date(date.getTime()) : new Date(date);
+    if (Number.isNaN(parsed.getTime())) {
+      return;
+    }
+    if (trimmedLabel.toLowerCase() === "birthday" && !birthdayValue) {
+      birthdayValue = toDateInputValue(parsed);
+      return;
+    }
+    normalizedSpecialDates.push({
+      label: trimmedLabel,
+      date: toDateInputValue(parsed),
+    });
+  });
+
+  if (!birthdayValue && "birthday" in source && source?.birthday) {
+    const legacyBirthday = source.birthday;
+    const parsed =
+      legacyBirthday instanceof Date
+        ? new Date(legacyBirthday.getTime())
+        : new Date(legacyBirthday);
+    if (!Number.isNaN(parsed.getTime())) {
+      birthdayValue = toDateInputValue(parsed);
+    }
+  }
+
+  return {
+    name: source.name ?? base.name,
+    gender: normalizedGender || base.gender,
+    birthday: birthdayValue,
+    connection: source.connection ?? base.connection,
+    likings: source.likings ?? base.likings,
+    specialDates: normalizedSpecialDates,
+  };
 };
 
 const stepDescriptors = [
@@ -109,19 +180,28 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
   open,
   onClose,
   onSubmit,
+  mode = "create",
+  editingMember = null,
 }) => {
-  const [formState, setFormState] = useState<FormState>(emptyFormState);
+  const [formState, setFormState] = useState<FormState>(() =>
+    createEmptyFormState()
+  );
   const [activeStep, setActiveStep] = useState<number>(1);
   const [isMobile, setIsMobile] = useState(false);
   const dragControls = useDragControls();
   const totalSteps = stepDescriptors.length;
 
   useEffect(() => {
-    if (open) {
-      setFormState(emptyFormState);
-      setActiveStep(1);
+    if (!open) {
+      return;
     }
-  }, [open]);
+    if (mode === "edit" && editingMember) {
+      setFormState(toFormState(editingMember));
+    } else {
+      setFormState(createEmptyFormState());
+    }
+    setActiveStep(1);
+  }, [editingMember, mode, open]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -163,7 +243,11 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
   }, [activeStep, formState.name, formState.gender, formState.connection]);
 
   const nextButtonText =
-    activeStep === totalSteps ? "Create Member" : "Continue";
+    activeStep === totalSteps
+      ? mode === "edit"
+        ? "Save Changes"
+        : "Create Member"
+      : "Continue";
 
   const dragConstraints = useMemo(() => {
     if (!isMobile) {
@@ -198,17 +282,37 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
     const hasValidBirthday =
       parsedBirthday instanceof Date && !Number.isNaN(parsedBirthday.getTime());
 
-    const parsedSpecialDates = formState.specialDates
+    let parsedSpecialDates = formState.specialDates
       .map((entry) => {
+        const trimmedLabel = entry.label.trim();
+        if (!trimmedLabel) {
+          return null;
+        }
         const parsed = new Date(`${entry.date}T00:00:00`);
         if (Number.isNaN(parsed.getTime())) {
           return null;
         }
-        return { label: entry.label, date: parsed };
+        return { label: trimmedLabel, date: parsed };
       })
       .filter(
         (entry): entry is { label: string; date: Date } => entry !== null
       );
+
+    if (hasValidBirthday && parsedBirthday) {
+      const birthdayIndex = parsedSpecialDates.findIndex(
+        (entry) => entry.label.toLowerCase() === "birthday"
+      );
+      const birthdayEntry = { label: "Birthday", date: parsedBirthday };
+      if (birthdayIndex >= 0) {
+        parsedSpecialDates[birthdayIndex] = birthdayEntry;
+      } else {
+        parsedSpecialDates = [birthdayEntry, ...parsedSpecialDates];
+      }
+    } else {
+      parsedSpecialDates = parsedSpecialDates.filter(
+        (entry) => entry.label.toLowerCase() !== "birthday"
+      );
+    }
 
     const payload: AddMemberFormValues = {
       name: formState.name.trim(),
@@ -216,14 +320,15 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
         formState.gender.trim().charAt(0).toUpperCase() +
         formState.gender.trim().slice(1),
       connection: formState.connection.trim(),
-      ...(hasValidBirthday ? { birthday: parsedBirthday } : {}),
-      ...(formState.likings.trim()
-        ? { likings: formState.likings.trim() }
-        : {}),
-      ...(parsedSpecialDates.length > 0
-        ? { specialDates: parsedSpecialDates }
-        : {}),
     };
+
+    const trimmedLikings = formState.likings.trim();
+    if (trimmedLikings) {
+      payload.likings = trimmedLikings;
+    }
+    if (parsedSpecialDates.length > 0) {
+      payload.specialDates = parsedSpecialDates;
+    }
 
     onSubmit(payload);
   }, [

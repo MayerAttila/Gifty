@@ -7,6 +7,7 @@ import OccasionDate from "./OccasionDate";
 import AnimatedList from "./AnimatedList";
 
 interface MemberCardProps extends Member {
+  birthday?: Date | string;
   className?: string;
   onDelete?: () => void;
   onEdit?: () => void;
@@ -114,35 +115,37 @@ const MemberCard: React.FC<MemberCardProps> = ({
     [onEdit, resetPosition]
   );
 
-  const normalizedBirthday = useMemo(() => {
-    if (!birthday) {
-      return null;
-    }
-    if (birthday instanceof Date) {
-      return Number.isNaN(birthday.getTime()) ? null : birthday;
-    }
-    const parsed = new Date(birthday);
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
-  }, [birthday]);
+  const { normalizedBirthday, normalizedSpecialDates } = useMemo(() => {
+    let birthdayDate: Date | null = null;
+    const otherDates: Array<{ label: string; date: Date }> = [];
 
-  const normalizedSpecialDates = useMemo(() => {
-    if (!specialDates || specialDates.length === 0) {
-      return [];
+    (specialDates ?? []).forEach((entry) => {
+      const label = typeof entry.label === "string" ? entry.label.trim() : "";
+      if (!label) {
+        return;
+      }
+      const parsed =
+        entry.date instanceof Date ? new Date(entry.date.getTime()) : new Date(entry.date);
+      if (Number.isNaN(parsed.getTime())) {
+        return;
+      }
+      if (label.toLowerCase() === "birthday" && !birthdayDate) {
+        birthdayDate = parsed;
+        return;
+      }
+      otherDates.push({ label, date: parsed });
+    });
+
+    if (!birthdayDate && birthday) {
+      const legacy =
+        birthday instanceof Date ? new Date(birthday.getTime()) : new Date(birthday);
+      if (!Number.isNaN(legacy.getTime())) {
+        birthdayDate = legacy;
+      }
     }
-    return specialDates
-      .filter((entry) => entry.label.toLowerCase() !== "birthday")
-      .map((entry) => {
-        const parsed =
-          entry.date instanceof Date ? entry.date : new Date(entry.date);
-        if (Number.isNaN(parsed.getTime())) {
-          return null;
-        }
-        return { label: entry.label, date: parsed };
-      })
-      .filter(
-        (entry): entry is { label: string; date: Date } => entry !== null
-      );
-  }, [specialDates]);
+
+    return { normalizedBirthday: birthdayDate, normalizedSpecialDates: otherDates };
+  }, [birthday, specialDates]);
 
   const sortedOccasions = useMemo(() => {
     const items: Array<{ label: string; date: Date; nextOccurrence: Date }> =

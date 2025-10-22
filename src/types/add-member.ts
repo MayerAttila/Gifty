@@ -1,7 +1,6 @@
 export type Member = {
   id: number;
   name: string;
-  birthday?: Date;
   gender: string;
   connection: string;
   likings?: string;
