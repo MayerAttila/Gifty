@@ -43,8 +43,11 @@ const createEmptyFormState = (): FormState => ({
 });
 
 const toDateInputValue = (date: Date) => {
-  const iso = date.toISOString();
-  return iso.slice(0, 10);
+  const local = new Date(date.getTime());
+  const year = local.getFullYear();
+  const month = String(local.getMonth() + 1).padStart(2, "0");
+  const day = String(local.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 const toFormState = (

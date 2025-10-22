@@ -145,7 +145,7 @@ const normalizeSpecialDatesFromForm = (
     ? ensureDateInstance(fallbackBirthday)
     : null;
 
-  if (birthdayCandidate) {
+  if (birthdayCandidate && !map.has("birthday")) {
     map.set("birthday", { label: "Birthday", date: birthdayCandidate });
   }
 
