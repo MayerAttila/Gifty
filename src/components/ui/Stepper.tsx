@@ -123,7 +123,7 @@ export default function Stepper({
 
                   {/* Connector between circles only */}
                   {isNotLastStep && (
-                    <div className="flex flex-1 items-center justify-center -translate-y-[10px]">
+                    <div className="flex flex-1 items-center justify-start -translate-y-[10px] mr-2 ml-2">
                       <StepConnector isComplete={currentStep > stepNumber} />
                     </div>
                   )}

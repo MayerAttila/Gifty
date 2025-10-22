@@ -139,7 +139,7 @@ const StepBadge: React.FC<{
         boxShadow: "0 12px 26px rgb(var(--color-brand) / 0.32)",
       }
     : {
-        backgroundColor: "rgb(var(--color-accent-4) / 1)",
+        backgroundColor: "rgb(var(--color-accent-3) / 1)",
         color: "rgb(var(--color-contrast) / 0.78)",
         boxShadow: "inset 0 0 0 1px rgb(var(--color-contrast) / 0.12)",
       };

@@ -254,7 +254,7 @@ const Members = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-6">
+      <div className="flex min-h-[calc(98dvh-8rem)] flex-col gap-6">
         <AnimatedList<Member>
           items={members}
           showGradients={false}
@@ -270,18 +270,20 @@ const Members = () => {
           onItemSelect={(member) => {
             console.log("Selected member:", member);
           }}
-          className="w-full text-contrast"
+          className="flex-1 w-full text-contrast"
           scrollContainerClassName="min-h-[22rem] max-h-[68vh] sm:max-h-[72vh] lg:max-h-[78vh] 2xl:max-h-[82vh]"
         />
-        <button
-          onClick={() => {
-            setEditingMember(null);
-            setIsAddMemberOpen(true);
-          }}
-          className="m-3 rounded-xl border border-brand/70 bg-brand px-4 py-3 text-center font-semibold text-primary shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary"
-        >
-          Add Member
-        </button>
+        <div className="mt-auto px-3 pb-3">
+          <button
+            onClick={() => {
+              setEditingMember(null);
+              setIsAddMemberOpen(true);
+            }}
+            className="w-full rounded-xl border border-brand/70 bg-brand px-4 py-3 text-center font-semibold text-primary shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary"
+          >
+            Add Member
+          </button>
+        </div>
       </div>
       <AddMemberPanel
         open={isAddMemberOpen}
