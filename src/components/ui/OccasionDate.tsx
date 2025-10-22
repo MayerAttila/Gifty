@@ -12,8 +12,7 @@ const OccasionDate: React.FC<OccasionDateProps> = ({
   className = "",
 }) => {
   const formattedDate = useMemo(() => {
-    const parsed =
-      date instanceof Date ? date : new Date(`${date}T00:00:00`);
+    const parsed = date instanceof Date ? date : new Date(`${date}T00:00:00`);
     if (!(parsed instanceof Date) || Number.isNaN(parsed.getTime())) {
       return typeof date === "string" ? date : "";
     }
@@ -25,14 +24,10 @@ const OccasionDate: React.FC<OccasionDateProps> = ({
 
   return (
     <div
-      className={`flex items-center justify-between gap-4 rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast ${className}`}
+      className={`flex items-center justify-between gap-4 rounded-lg border border-accent-3 bg-primary px-3 py-2 text-sm text-contrast ${className}`}
     >
-      <span className="font-medium text-contrast">
-        {label}
-      </span>
-      <span className="text-contrast/70">
-        {formattedDate}
-      </span>
+      <span className="font-medium text-contrast">{label}</span>
+      <span className="text-contrast/70">{formattedDate}</span>
     </div>
   );
 };

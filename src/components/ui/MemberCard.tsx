@@ -125,7 +125,9 @@ const MemberCard: React.FC<MemberCardProps> = ({
         return;
       }
       const parsed =
-        entry.date instanceof Date ? new Date(entry.date.getTime()) : new Date(entry.date);
+        entry.date instanceof Date
+          ? new Date(entry.date.getTime())
+          : new Date(entry.date);
       if (Number.isNaN(parsed.getTime())) {
         return;
       }
@@ -138,13 +140,18 @@ const MemberCard: React.FC<MemberCardProps> = ({
 
     if (!birthdayDate && birthday) {
       const legacy =
-        birthday instanceof Date ? new Date(birthday.getTime()) : new Date(birthday);
+        birthday instanceof Date
+          ? new Date(birthday.getTime())
+          : new Date(birthday);
       if (!Number.isNaN(legacy.getTime())) {
         birthdayDate = legacy;
       }
     }
 
-    return { normalizedBirthday: birthdayDate, normalizedSpecialDates: otherDates };
+    return {
+      normalizedBirthday: birthdayDate,
+      normalizedSpecialDates: otherDates,
+    };
   }, [birthday, specialDates]);
 
   const sortedOccasions = useMemo(() => {
@@ -337,9 +344,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
                 <OccasionDate
                   label={item.label}
                   date={item.date}
-                  className={
-                    index === 0 ? "border-brand/60 bg-brand/10 text-brand" : ""
-                  }
+                  className={"bg-transparent text-brand"}
                 />
               )}
             />
