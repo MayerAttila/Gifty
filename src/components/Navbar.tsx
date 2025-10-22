@@ -25,8 +25,8 @@ const Navbar = () => {
 
   const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
     [
-      "rounded-md px-3 py-2 text-contrast transition hover:bg-accent-2/60 hover:text-brand",
-      isActive ? "bg-accent-2/80 text-brand" : undefined,
+      "rounded-md px-3 py-2 transition hover:bg-accent-2/60 hover:text-brand",
+      isActive ? "bg-accent-2/80 text-brand" : "text-contrast",
     ]
       .filter(Boolean)
       .join(" ");
@@ -35,10 +35,7 @@ const Navbar = () => {
     <>
       <header className="bg-primary shadow-sm">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link
-            to="/"
-            className="text-lg font-bold text-brand"
-          >
+          <Link to="/" className="text-lg font-bold text-brand">
             Gifty
           </Link>
           <div className="hidden items-center gap-6 text-sm font-medium text-contrast/70 sm:flex">
@@ -82,9 +79,7 @@ const Navbar = () => {
           />
           <div className="relative ml-auto flex h-full w-72 max-w-full flex-col bg-primary shadow-2xl">
             <div className="flex items-center justify-between border-b border-accent-2/60 px-4 py-4 text-contrast">
-              <span className="text-lg font-semibold text-brand">
-                Gifty
-              </span>
+              <span className="text-lg font-semibold text-brand">Gifty</span>
               <button
                 type="button"
                 className="rounded-md p-2 text-contrast transition hover:bg-accent-2/60 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
