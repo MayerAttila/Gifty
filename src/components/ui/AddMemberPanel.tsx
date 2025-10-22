@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useState,
   type ChangeEvent,
+  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { AnimatePresence, motion, useDragControls } from "motion/react";
@@ -51,6 +52,30 @@ const StepBadge: React.FC<{
 }> = ({ step, currentStep, label, onClick }) => {
   const isActive = currentStep === step;
   const isComplete = currentStep > step;
+  const badgeStyles: CSSProperties = isActive
+    ? {
+        backgroundColor: "rgb(var(--color-brand) / 1)",
+        color: "rgb(var(--color-primary) / 1)",
+        boxShadow: "0 12px 26px rgb(var(--color-brand) / 0.32)",
+      }
+    : isComplete
+    ? {
+        backgroundColor: "rgb(var(--color-brand) / 1)",
+        color: "rgb(var(--color-primary) / 1)",
+        boxShadow: "0 12px 26px rgb(var(--color-brand) / 0.32)",
+      }
+    : {
+        backgroundColor: "rgb(var(--color-accent-4) / 1)",
+        color: "rgb(var(--color-contrast) / 0.78)",
+        boxShadow: "inset 0 0 0 1px rgb(var(--color-contrast) / 0.12)",
+      };
+  const labelStyles: CSSProperties = {
+    color: isActive
+      ? "rgb(var(--color-brand) / 1)"
+      : isComplete
+      ? "rgb(var(--color-contrast) / 0.9)"
+      : "rgb(var(--color-contrast) / 0.65)",
+  };
 
   return (
     <button
@@ -59,13 +84,8 @@ const StepBadge: React.FC<{
       className="group flex flex-col items-center gap-2 focus:outline-none"
     >
       <div
-        className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all duration-200 ${
-          isActive
-            ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/40"
-            : isComplete
-            ? "bg-emerald-300 text-emerald-900 shadow-lg shadow-emerald-300/30"
-            : "bg-slate-800 text-slate-300 shadow-inner shadow-black/50 group-hover:bg-slate-700"
-        }`}
+        className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-transform duration-200 group-hover:-translate-y-0.5"
+        style={badgeStyles}
       >
         {isComplete ? (
           <FiCheck className="h-4 w-4" />
@@ -76,13 +96,8 @@ const StepBadge: React.FC<{
         )}
       </div>
       <span
-        className={`text-xs font-medium uppercase tracking-wide transition-colors duration-200 ${
-          isActive
-            ? "text-emerald-400"
-            : isComplete
-            ? "text-slate-200"
-            : "text-slate-400 group-hover:text-slate-200"
-        }`}
+        className="text-xs font-medium uppercase tracking-wide transition-transform duration-200 group-hover:-translate-y-0.5"
+        style={labelStyles}
       >
         {label}
       </span>
@@ -181,8 +196,7 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
         ? new Date(`${trimmedBirthday}T00:00:00`)
         : undefined;
     const hasValidBirthday =
-      parsedBirthday instanceof Date &&
-      !Number.isNaN(parsedBirthday.getTime());
+      parsedBirthday instanceof Date && !Number.isNaN(parsedBirthday.getTime());
 
     const parsedSpecialDates = formState.specialDates
       .map((entry) => {
@@ -305,7 +319,7 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
               nextButtonText={nextButtonText}
               nextButtonProps={{ disabled: !isStepReady }}
               backButtonText="Back"
-              stepCircleContainerClassName="w-full bg-red-300 dark:bg-slate-900/70"
+              stepCircleContainerClassName="w-full"
               stepContainerClassName="justify-center p-0"
               contentClassName="pb-6"
               footerClassName=""

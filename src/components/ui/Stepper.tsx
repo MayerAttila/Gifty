@@ -83,8 +83,9 @@ export default function Stepper({
       {...rest}
     >
       <div
-        className={`w-full shadow-xl ${stepCircleContainerClassName ?? ""}`}
-        style={{ border: "1px solid #222" }}
+        className={`w-full rounded-2xl bg-transparent shadow-xl ${
+          stepCircleContainerClassName ?? ""
+        }`}
       >
         <div
           className={`${stepContainerClassName} flex w-full items-center px-4 py-6 sm:px-6 sm:py-8`}
@@ -152,11 +153,7 @@ export default function Stepper({
                 <button
                   type="button"
                   onClick={handleBack}
-                  className={`duration-350 rounded px-2 py-1 transition ${
-                    currentStep === 1
-                      ? "pointer-events-none opacity-50 text-neutral-400"
-                      : "text-neutral-400 hover:text-neutral-700"
-                  }`}
+                  className="rounded-full border border-accent-4/50 px-3 py-1.5 text-sm font-medium text-contrast transition hover:border-accent-4 hover:text-contrast/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                   {...backButtonProps}
                 >
                   {backButtonText}
@@ -165,7 +162,7 @@ export default function Stepper({
               <button
                 type="button"
                 onClick={isLastStep ? handleComplete : handleNext}
-                className="duration-350 flex items-center justify-center rounded-full bg-green-500 py-1.5 px-3.5 font-medium tracking-tight text-white transition hover:bg-green-600 active:bg-green-700"
+                className="flex items-center justify-center rounded-full bg-brand px-4 py-2 text-sm font-semibold text-primary transition hover:bg-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                 {...nextButtonProps}
               >
                 {isLastStep ? "Complete" : nextButtonText}
@@ -312,22 +309,22 @@ function StepIndicator({
         variants={{
           inactive: {
             scale: 1,
-            backgroundColor: "#222",
-            color: "#e5e7eb",
+            backgroundColor: "rgb(var(--color-accent-4) / 1)",
+            color: "rgb(var(--color-contrast) / 0.75)",
           },
           active: {
             scale: 1,
-            backgroundColor: "#5227FF",
-            color: "#f8fafc",
+            backgroundColor: "rgb(var(--color-brand) / 1)",
+            color: "rgb(var(--color-primary) / 1)",
           },
           complete: {
             scale: 1,
-            backgroundColor: "#22c55e",
-            color: "#0f172a",
+            backgroundColor: "rgb(var(--color-brand) / 0.18)",
+            color: "rgb(var(--color-brand) / 1)",
           },
         }}
         transition={{ duration: 0.3 }}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold"
+        className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold"
       >
         {status === "complete" ? (
           <FiCheck className="h-4 w-4" />
@@ -347,8 +344,14 @@ interface StepConnectorProps {
 
 function StepConnector({ isComplete }: StepConnectorProps) {
   const lineVariants: Variants = {
-    incomplete: { scaleX: 0, backgroundColor: "#475569" }, // slate-600
-    complete: { scaleX: 1, backgroundColor: "#10b981" }, // emerald-500
+    incomplete: {
+      scaleX: 0,
+      backgroundColor: "rgb(var(--color-accent-4) / 1)",
+    },
+    complete: {
+      scaleX: 1,
+      backgroundColor: "rgb(var(--color-brand) / 1)",
+    },
   };
 
   return (
