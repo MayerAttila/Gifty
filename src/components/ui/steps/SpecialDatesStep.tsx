@@ -1,9 +1,11 @@
 import React, { useCallback, useMemo, useState } from "react";
-import type { FormState } from "../AddMemberTypes";
+import type { FormState } from "../../../types/add-member";
 import OccasionDate from "../OccasionDate";
 import AnimatedList from "../AnimatedList";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
+import CustomTextInput from "../CustomTextInput";
+import CustomDateInput from "../CustomDateInput";
 
 interface SpecialDatesStepProps {
   formState: FormState;
@@ -40,43 +42,36 @@ const SpecialDatesStep: React.FC<SpecialDatesStepProps> = ({
 
   return (
     <div className="flex flex-col gap-6 py-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
-            Occasion name
-          </span>
-          <input
-            type="text"
-            placeholder="e.g. Nameday, First date anniversary"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            className="rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
-          />
-        </label>
-        <label className="flex flex-col gap-2 sm:max-w-[220px]">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <CustomTextInput
+          label="Occasion name"
+          placeholder="e.g. Nameday, First date anniversary"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          containerClassName="flex flex-1 flex-col gap-2"
+        />
+        <div className="flex flex-1 flex-col gap-2 sm:max-w-[320px]">
           <span className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
             Date
           </span>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
-          />
-        </label>
-        <div className="flex items-end">
-          <button
-            type="button"
-            disabled={!canAdd}
-            onClick={handleAdd}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold text-primary transition disabled:cursor-not-allowed disabled:opacity-50 ${
-              canAdd
-                ? "bg-brand shadow-sm shadow-brand/40 hover:-translate-y-0.5 hover:shadow-md"
-                : "bg-brand"
-            }`}
-          >
-            Add date
-          </button>
+          <div className="flex items-center gap-2">
+            <CustomDateInput
+              label="Date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              containerClassName="flex-1"
+              className="w-full"
+              hideLabel
+            />
+            <button
+              type="button"
+              disabled={!canAdd}
+              onClick={handleAdd}
+              className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-primary transition hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand"
+            >
+              Add
+            </button>
+          </div>
         </div>
       </div>
       <div className="mt-2">

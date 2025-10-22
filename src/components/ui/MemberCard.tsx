@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
-import type { Member } from "./AddMemberTypes";
+import type { Member } from "../../types/add-member";
 import OccasionDate from "./OccasionDate";
 import AnimatedList from "./AnimatedList";
 

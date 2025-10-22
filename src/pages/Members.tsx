@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import AnimatedList from "../components/ui/AnimatedList";
 import MemberCard, { type Member } from "../components/ui/MemberCard";
 import AddMemberPanel from "../components/ui/AddMemberPanel";
-import type { AddMemberFormValues } from "../components/ui/AddMemberTypes";
+import type { AddMemberFormValues } from "../types/add-member";
 
 const MEMBERS_STORAGE_KEY = "gifty:members";
 

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import type { FormState } from "../AddMemberTypes";
+import type { FormState } from "../../../types/add-member";
+import CustomTextInput from "../CustomTextInput";
+import SelectableBadge from "../SelectableBadge";
 
 interface LikingsStepProps {
   formState: FormState;
@@ -38,24 +40,20 @@ const LikingsStep: React.FC<LikingsStepProps> = ({ formState, onToggleLike }) =>
   return (
     <div className="flex flex-col gap-8 py-4">
       <div className="flex items-end gap-2">
-        <label className="flex grow flex-col gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-contrast/80">
-            Add a like
-          </span>
-          <input
-            type="text"
-            placeholder="e.g. Sneakers, Anime, Lego"
-            value={newLike}
-            onChange={(e) => setNewLike(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddLike();
-              }
-            }}
-            className="rounded-lg border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
-          />
-        </label>
+        <CustomTextInput
+          containerClassName="flex grow flex-col gap-2"
+          label="Add a like"
+          type="text"
+          placeholder="e.g. Sneakers, Anime, Lego"
+          value={newLike}
+          onChange={(e) => setNewLike(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleAddLike();
+            }
+          }}
+        />
         <button
           type="button"
           onClick={handleAddLike}
@@ -68,18 +66,12 @@ const LikingsStep: React.FC<LikingsStepProps> = ({ formState, onToggleLike }) =>
         {chips.map((like) => {
           const active = selectedLower.includes(like.toLowerCase());
           return (
-            <button
-              type="button"
+            <SelectableBadge
               key={like}
+              label={like}
+              isActive={active}
               onClick={() => onToggleLike(like)}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition ${
-                active
-                  ? "bg-brand text-primary shadow-sm shadow-brand/40"
-                  : "border border-accent-2/60 bg-primary text-contrast hover:border-brand/40 hover:text-brand"
-              }`}
-            >
-              {like}
-            </button>
+            />
           );
         })}
       </div>

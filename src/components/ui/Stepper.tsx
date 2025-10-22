@@ -153,7 +153,7 @@ export default function Stepper({
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="rounded-full border border-accent-4/50 px-3 py-1.5 text-sm font-medium text-contrast transition hover:border-accent-4 hover:text-contrast/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+                  className="rounded-full border border-accent-3 px-3 py-1.5 text-sm font-medium text-contrast transition hover:border-accent-4 hover:text-contrast/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                   {...backButtonProps}
                 >
                   {backButtonText}

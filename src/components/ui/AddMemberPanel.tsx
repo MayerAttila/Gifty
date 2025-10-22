@@ -11,13 +11,13 @@ import { AnimatePresence, motion, useDragControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import { FiCheck, FiCircle, FiDisc } from "react-icons/fi";
 import Stepper, { Step } from "./Stepper";
-import type { AddMemberFormValues, FormState } from "./AddMemberTypes";
+import type { AddMemberFormValues, FormState } from "../../types/add-member";
 import BaseInfoStep from "./steps/BaseInfoStep";
 import LikingsStep from "./steps/LikingsStep";
 import SpecialDatesStep from "./steps/SpecialDatesStep";
 // import of date util not needed here
 
-// Types moved to AddMemberTypes
+// Types moved to src/types/add-member
 
 interface AddMemberPanelProps {
   open: boolean;
@@ -25,7 +25,7 @@ interface AddMemberPanelProps {
   onSubmit: (values: AddMemberFormValues) => void;
 }
 
-// FormState type imported from AddMemberTypes
+// FormState type imported from src/types/add-member
 
 const emptyFormState: FormState = {
   name: "",
@@ -73,7 +73,7 @@ const StepBadge: React.FC<{
     color: isActive
       ? "rgb(var(--color-brand) / 1)"
       : isComplete
-      ? "rgb(var(--color-contrast) / 0.9)"
+      ? "rgb(var(--color-brand) / 0.9)"
       : "rgb(var(--color-contrast) / 0.65)",
   };
 
