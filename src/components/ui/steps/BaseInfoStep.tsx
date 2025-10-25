@@ -31,7 +31,7 @@ const BaseInfoStep: React.FC<BaseInfoStepProps> = ({
         <CustomTextInput
           required
           name="name"
-          label="Name"
+          label="Loved ones name"
           value={formState.name}
           onChange={onFieldChange}
         />
