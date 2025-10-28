@@ -7,9 +7,6 @@ const navLinks = [
   { to: "/", label: "Home" },
   { to: "/Members", label: "Members" },
   { to: "/calendar", label: "Calendar" },
-  { to: "/features", label: "Features" },
-  { to: "/pricing", label: "Pricing" },
-  { to: "/contact", label: "Contact" },
 ];
 
 const Navbar = () => {
@@ -52,20 +49,6 @@ const Navbar = () => {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Link
-              to="/pricing"
-              className="hidden rounded-full bg-brand px-4 py-2 text-sm font-semibold text-primary shadow transition-transform hover:-translate-y-0.5 hover:shadow-md sm:inline-flex"
-            >
-              View Pricing
-            </Link>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded-md p-2 text-contrast transition hover:bg-accent-2/60 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/70 sm:hidden"
-              onClick={() => setIsMenuOpen(true)}
-              aria-label="Open menu"
-            >
-              <FiMenu className="h-6 w-6" />
-            </button>
           </div>
         </nav>
       </header>
@@ -102,13 +85,6 @@ const Navbar = () => {
                 </NavLink>
               ))}
               <ThemeToggle variant="menu" />
-              <Link
-                to="/pricing"
-                className="mt-auto rounded-full bg-brand px-4 py-2 text-sm font-semibold text-primary shadow transition-transform hover:-translate-y-0.5 hover:shadow-md"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                View Pricing
-              </Link>
             </nav>
           </div>
         </div>
