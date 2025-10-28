@@ -1,16 +1,11 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Member } from "../types/add-member";
 import {
   MEMBERS_STORAGE_KEY,
   MEMBERS_UPDATED_EVENT,
   loadMembersFromStorage,
 } from "../utils/member-storage";
+import UpcomingEvents from "../components/calendar/UpcomingEvents";
 
 type CalendarEvent = {
   memberName: string;
@@ -177,9 +172,7 @@ const Calendar = () => {
         return;
       }
       const clamped = Math.max(0, Math.min(targetIndex, monthsData.length - 1));
-      const targetNode = container.children.item(clamped) as
-        | HTMLElement
-        | null;
+      const targetNode = container.children.item(clamped) as HTMLElement | null;
       if (!targetNode) {
         return;
       }
@@ -200,11 +193,11 @@ const Calendar = () => {
       }
       container.scrollTo(options);
 
-      if (clamped !== activeMonthIndex) {
-        setActiveMonthIndex(clamped);
-      }
+      setActiveMonthIndex((current) =>
+        current === clamped ? current : clamped
+      );
     },
-    [activeMonthIndex, monthsData.length]
+    [monthsData.length]
   );
 
   const monthLabel = useMemo(() => {
@@ -217,9 +210,27 @@ const Calendar = () => {
     });
   }, [activeMonthData]);
 
+  const upcomingTagLabel = activeMonthData ? monthLabel : undefined;
+
+  const upcomingEmptyMessage = useMemo(() => {
+    if (!activeMonthData) {
+      return "No special dates yet.";
+    }
+    return `No special dates in ${monthLabel} yet. Add members with occasions to see them highlighted here.`;
+  }, [activeMonthData, monthLabel]);
+
+  const hasInitialScroll = useRef(false);
+
   useEffect(() => {
-    scrollToMonth(activeMonthIndex, "auto");
-  }, [activeMonthIndex, monthsData.length, scrollToMonth]);
+    if (hasInitialScroll.current) {
+      return;
+    }
+    if (monthsData.length === 0) {
+      return;
+    }
+    scrollToMonth(PAST_MONTHS, "auto");
+    hasInitialScroll.current = true;
+  }, [monthsData.length, scrollToMonth]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -241,9 +252,7 @@ const Calendar = () => {
       if (!container) {
         return;
       }
-      const children = Array.from(
-        container.children
-      ) as HTMLElement[];
+      const children = Array.from(container.children) as HTMLElement[];
       if (children.length === 0) {
         return;
       }
@@ -257,9 +266,7 @@ const Calendar = () => {
       children.forEach((child, index) => {
         const rect = child.getBoundingClientRect();
         const distance = isHorizontal
-          ? Math.abs(
-              rect.left + rect.width / 2 - containerCenterX
-            )
+          ? Math.abs(rect.left + rect.width / 2 - containerCenterX)
           : Math.abs(rect.top - containerRect.top);
         if (distance < smallestDistance) {
           smallestDistance = distance;
@@ -284,72 +291,57 @@ const Calendar = () => {
 
   return (
     <div className="flex flex-col gap-8 text-contrast">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-brand">
-            Calendar
-          </h1>
-          <p className="text-sm text-contrast/70 max-w-md">
-            Highlighting special dates for your members.
-          </p>
+      <div className="hidden w-full items-center justify-between gap-4 md:flex">
+        <button
+          type="button"
+          onClick={() => scrollToMonth(activeMonthIndex - 1)}
+          disabled={activeMonthIndex === 0}
+          className={[
+            "min-w-[88px] rounded-lg border px-3 py-1.5 text-sm font-medium text-center transition",
+            activeMonthIndex === 0
+              ? "cursor-not-allowed border-accent-2/60 text-contrast/40"
+              : "border-accent-2/60 text-contrast hover:border-brand/70 hover:text-brand",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          Prev
+        </button>
+        <div className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-brand shadow-sm">
+          {monthLabel}
         </div>
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-brand shadow-sm">
-            {monthLabel}
-          </div>
-          <div className="hidden items-center gap-2 md:flex">
-            <button
-              type="button"
-              onClick={() => scrollToMonth(activeMonthIndex - 1)}
-              disabled={activeMonthIndex === 0}
-              className={[
-                "rounded-lg border px-3 py-1.5 text-sm font-medium transition",
-                activeMonthIndex === 0
-                  ? "cursor-not-allowed border-accent-2/60 text-contrast/40"
-                  : "border-accent-2/60 text-contrast hover:border-brand/70 hover:text-brand",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              Prev
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollToMonth(activeMonthIndex + 1)}
-              disabled={activeMonthIndex === monthsData.length - 1}
-              className={[
-                "rounded-lg border px-3 py-1.5 text-sm font-medium transition",
-                activeMonthIndex === monthsData.length - 1
-                  ? "cursor-not-allowed border-accent-2/60 text-contrast/40"
-                  : "border-accent-2/60 text-contrast hover:border-brand/70 hover:text-brand",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </header>
+        <button
+          type="button"
+          onClick={() => scrollToMonth(activeMonthIndex + 1)}
+          disabled={activeMonthIndex === monthsData.length - 1}
+          className={[
+            "min-w-[88px] rounded-lg border px-3 py-1.5 text-sm font-medium text-center transition",
+            activeMonthIndex === monthsData.length - 1
+              ? "cursor-not-allowed border-accent-2/60 text-contrast/40"
+              : "border-accent-2/60 text-contrast hover:border-brand/70 hover:text-brand",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          Next
+        </button>
+      </div>
 
       <section className="flex flex-col gap-3">
-        <p className="text-xs uppercase tracking-wider text-contrast/50 md:hidden">
-          Scroll to move between months
-        </p>
         <div
           ref={monthRailRef}
           onScroll={handleRailScroll}
-          className="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex max-h-[72vh] snap-y snap-mandatory flex-col gap-4 overflow-y-auto overflow-x-hidden pb-2 md:max-h-none md:flex-row md:snap-x md:overflow-y-hidden md:overflow-x-auto"
+          className="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden pb-2"
         >
           {monthsData.map((monthData, index) => (
             <article
               key={monthData.month.getTime()}
               className={[
-                "w-full flex-shrink-0 snap-start snap-always rounded-2xl bg-primary p-3 shadow-sm",
-                "min-h-[60vh]",
-                "md:min-h-0 md:min-w-full md:max-w-full md:snap-center md:p-4",
+                "min-w-full max-w-full flex-shrink-0 snap-start snap-always rounded-2xl bg-primary p-3 shadow-sm",
+                "min-h-[50vh]",
+                "md:min-h-0 md:snap-center md:p-4",
                 index === activeMonthIndex
-                  ? "border border-brand/40"
+                  ? ""
                   : "border border-transparent opacity-70",
               ]
                 .filter(Boolean)
@@ -398,19 +390,17 @@ const Calendar = () => {
                         .join(" ")}
                     >
                       <div className="flex h-full flex-col items-center justify-center gap-1 md:hidden">
-                        <span className={dayNumberClass}>
-                          {date.getDate()}
-                        </span>
+                        <span className={dayNumberClass}>{date.getDate()}</span>
                       </div>
                       {hasEvents ? (
-                        <span className={`${badgeClass} absolute right-1 top-1 md:hidden`}>
+                        <span
+                          className={`${badgeClass} absolute right-1 top-1 md:hidden`}
+                        >
                           {events.length}
                         </span>
                       ) : null}
                       <div className="hidden items-center justify-between md:flex">
-                        <span className={dayNumberClass}>
-                          {date.getDate()}
-                        </span>
+                        <span className={dayNumberClass}>{date.getDate()}</span>
                         {hasEvents ? (
                           <span className={badgeClass}>{events.length}</span>
                         ) : null}
@@ -446,40 +436,13 @@ const Calendar = () => {
         </div>
       </section>
 
-      <section className="rounded-xl bg-primary p-4 shadow-sm">
-        <h2 className="text-lg font-semibold text-contrast">This Month</h2>
-        {monthEvents.length === 0 ? (
-          <p className="mt-2 text-sm text-contrast/70">
-            No special dates in this month yet. Add members with occasions to
-            see them highlighted here.
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-2 text-sm text-contrast/80">
-            {monthEvents.map((event) => (
-              <li
-                key={event.key}
-                className="flex items-center justify-between rounded-lg border border-accent-2/50 px-3 py-2"
-              >
-                <div>
-                  <p className="font-semibold text-brand">
-                    {event.memberName}
-                  </p>
-                  <p className="text-xs uppercase tracking-wider text-contrast/60">
-                    {event.label}
-                  </p>
-                </div>
-                <span className="text-sm font-medium text-contrast/80">
-                  {event.occurrence.toLocaleDateString(undefined, {
-                    day: "numeric",
-                    month: "short",
-                    weekday: "short",
-                  })}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <UpcomingEvents
+        className="md:hidden"
+        events={monthEvents}
+        title="Upcoming dates"
+        tagLabel={upcomingTagLabel}
+        emptyMessage={upcomingEmptyMessage}
+      />
     </div>
   );
 };
