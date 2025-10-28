@@ -7,5 +7,12 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     host: true,
+    proxy: {
+      "/serpapi": {
+        target: "https://serpapi.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/serpapi/, ""),
+      },
+    },
   },
 });
