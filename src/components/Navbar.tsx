@@ -49,6 +49,14 @@ const Navbar = () => {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-md p-2 text-contrast transition hover:bg-accent-2/60 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/70 sm:hidden"
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <FiMenu className="h-6 w-6" />
+            </button>
           </div>
         </nav>
       </header>
