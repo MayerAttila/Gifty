@@ -21,7 +21,6 @@ const MemberCard: React.FC<MemberCardProps> = ({
   gender,
   birthday,
   connection,
-  likings,
   specialDates,
   className = "",
   onDelete,
@@ -340,7 +339,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
               getItemKey={(item, index) =>
                 `${item.label}-${item.date.getTime()}-${index}`
               }
-              renderItem={(item, index) => (
+              renderItem={(item) => (
                 <OccasionDate
                   label={item.label}
                   date={item.date}
