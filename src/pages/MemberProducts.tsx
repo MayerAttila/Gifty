@@ -229,12 +229,11 @@ const MemberProducts = () => {
             items={memberProducts}
             showGradients={false}
             getItemKey={(product) => product.id}
-            renderItem={(product, _index, isSelected) => (
+            renderItem={(product, _index) => (
               <MemberProductCard
                 product={product}
                 onRemove={handleDeleteProduct}
                 onEdit={handleEditProduct}
-                className={isSelected ? "ring-2 ring-brand/50" : ""}
               />
             )}
             onItemSelect={(product) => handleEditProduct(product)}

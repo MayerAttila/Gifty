@@ -6,9 +6,10 @@ import {
   useState,
   type ChangeEvent,
   type FormEvent,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { FiX } from "react-icons/fi";
+import { AnimatePresence, motion, useDragControls } from "motion/react";
+import type { PanInfo } from "motion/react";
 import type {
   MemberProduct,
   MemberProductFormValues,
@@ -48,7 +49,9 @@ const AddProductPanel = ({
   const [formState, setFormState] =
     useState<MemberProductFormValues>(emptyForm);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const dragControls = useDragControls();
 
   useEffect(() => {
     if (!open) {
@@ -87,7 +90,28 @@ const AddProductPanel = ({
     return;
   }, [open]);
 
-  const handleFieldChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const mediaQuery = window.matchMedia("(max-width: 640px)");
+    const updateIsMobile = (event: MediaQueryListEvent) => {
+      setIsMobile(event.matches);
+    };
+    setIsMobile(mediaQuery.matches);
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updateIsMobile);
+      return () => mediaQuery.removeEventListener("change", updateIsMobile);
+    }
+
+    mediaQuery.addListener(updateIsMobile);
+    return () => mediaQuery.removeListener(updateIsMobile);
+  }, []);
+
+  const handleFieldChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = event.target;
     setFormState((prev) => ({
       ...prev,
@@ -122,6 +146,36 @@ const AddProductPanel = ({
     onClose();
   }, [onClose]);
 
+  const dragConstraints = useMemo(() => {
+    if (!isMobile) {
+      return undefined;
+    }
+    return { top: 0, bottom: 360 };
+  }, [isMobile]);
+
+  const handlePanelDragEnd = useCallback(
+    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      if (!isMobile) {
+        return;
+      }
+      if (info.offset.y > 80 || info.velocity.y > 600) {
+        onClose();
+      }
+    },
+    [isMobile, onClose]
+  );
+
+  const handleGrabPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!isMobile) {
+        return;
+      }
+      event.stopPropagation();
+      dragControls.start(event.nativeEvent, { snapToCursor: false });
+    },
+    [dragControls, isMobile]
+  );
+
   return (
     <AnimatePresence>
       {open ? (
@@ -149,30 +203,34 @@ const AddProductPanel = ({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0.6 }}
             transition={{ type: "spring", stiffness: 320, damping: 36 }}
+            drag={isMobile ? "y" : false}
+            dragConstraints={dragConstraints}
+            dragElastic={isMobile ? 0.35 : 0}
+            dragMomentum={false}
+            dragControls={dragControls}
+            dragListener={false}
+            onDragEnd={handlePanelDragEnd}
           >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-brand/80">
-                  {mode === "edit" ? "Update idea" : "New idea"}
-                </p>
-                <h2 className="mt-1 text-2xl font-bold text-contrast">
-                  {panelTitle}
-                </h2>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-center pt-1.5 sm:hidden">
+                <div
+                  role="presentation"
+                  className="h-1.5 w-16 cursor-grab rounded-full bg-slate-300 transition active:cursor-grabbing dark:bg-slate-700"
+                  aria-hidden="true"
+                  style={{ touchAction: "none" }}
+                  onPointerDown={handleGrabPointerDown}
+                />
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-full border border-accent-2/40 p-2 text-contrast/70 transition hover:-translate-y-0.5 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/60 focus:ring-offset-2 focus:ring-offset-primary"
-                aria-label="Close panel"
-              >
-                <FiX className="text-xl" />
-              </button>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.35em] text-brand/80">
+                    {mode === "edit" ? "Update idea" : "New idea"}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <form
-              onSubmit={handleSubmit}
-              className="mt-6 flex flex-col gap-4"
-            >
+            <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
               <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.3em] text-contrast/80">
                 Product name
                 <input
@@ -221,11 +279,9 @@ const AddProductPanel = ({
                 />
               </label>
 
-              {error ? (
-                <p className="text-sm text-amber-400">{error}</p>
-              ) : null}
+              {error ? <p className="text-sm text-amber-400">{error}</p> : null}
 
-              <div className="flex items-center justify-end gap-3">
+              <div className="flex justify-between gap-3">
                 <button
                   type="button"
                   onClick={onClose}

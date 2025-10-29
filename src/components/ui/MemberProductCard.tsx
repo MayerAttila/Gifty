@@ -270,7 +270,7 @@ const MemberProductCard = ({
                   resetPosition();
                 }
               }}
-              className="inline-flex w-max items-center gap-2 rounded-full border border-brand/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand transition hover:-translate-y-0.5 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary"
+              className="inline-flex w-max items-center gap-2 rounded-full border border-brand/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand transition hover:-translate-y-0.5 hover:shadow-sm focus:outline-none"
             >
               View Product
             </a>
@@ -295,7 +295,7 @@ const MemberProductCard = ({
                 }
                 onEdit(product);
               }}
-              className="hidden rounded-full border border-brand/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary sm:inline-flex"
+              className="hidden rounded-full border border-brand/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none sm:inline-flex"
             >
               Edit
             </button>
@@ -307,7 +307,7 @@ const MemberProductCard = ({
                 event.stopPropagation();
                 void triggerDelete();
               }}
-              className="hidden rounded-full border border-accent-2/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-contrast shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary sm:inline-flex"
+              className="hidden rounded-full border border-accent-2/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-contrast shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none sm:inline-flex"
             >
               Remove
             </button>
