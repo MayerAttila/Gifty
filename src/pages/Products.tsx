@@ -221,7 +221,7 @@ const Products = () => {
             {enrichedResults.map((item) => (
               <article
                 key={item.id}
-                className={[
+                className=[
                   "relative flex flex-col gap-3 rounded-xl border p-4 transition shadow-sm",
                   item.matchesTarget
                     ? "border-emerald-400/70 bg-emerald-50 dark:border-emerald-500/60 dark:bg-emerald-950/40"

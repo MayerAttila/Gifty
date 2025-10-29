@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AnimatedList from "../components/ui/AnimatedList";
 import MemberProductCard from "../components/ui/MemberProductCard";
@@ -228,39 +223,6 @@ const MemberProducts = () => {
         >
           Members
         </button>
-
-        <section className="rounded-3xl border border-accent-2/60 bg-primary/80 p-6 shadow-lg shadow-slate-800/10 backdrop-blur">
-          <header className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-contrast">
-                {member.name}
-              </h1>
-              {member.connection ? (
-                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.35em] text-brand">
-                  {member.connection}
-                </p>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-1 text-sm text-contrast/75">
-              <span>
-                Tracked products:{" "}
-                <strong className="text-brand">{memberProducts.length}</strong>
-              </span>
-              {totalTrackedValue != null ? (
-                <span>
-                  Estimated value:{" "}
-                  <strong className="text-brand">
-                    {totalTrackedValue.toFixed(2)}
-                  </strong>
-                </span>
-              ) : null}
-            </div>
-          </header>
-          <p className="mt-3 text-sm text-contrast/70">
-            Keep a shortlist of gift ideas tied to this member. Save links,
-            budget expectations, and quick notes about why they&apos;d love it.
-          </p>
-        </section>
 
         <div className="flex min-h-[calc(98dvh-8rem)] flex-col gap-6">
           <AnimatedList<MemberProduct>

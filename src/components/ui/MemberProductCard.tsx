@@ -1,5 +1,8 @@
-import { useCallback, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useRef, useState } from "react";
+import type {
+  MouseEvent as ReactMouseEvent,
+  MouseEventHandler as ReactMouseEventHandler,
+} from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
@@ -37,7 +40,7 @@ const MemberProductCard = ({
   const [previewAction, setPreviewAction] = useState<"delete" | "edit" | null>(
     null
   );
-  const [maxHorizontalDrag, setMaxHorizontalDrag] = useState(0);
+  const maxHorizontalDragRef = useRef(0);
 
   const resetPosition = useCallback(() => {
     void controls
@@ -49,25 +52,20 @@ const MemberProductCard = ({
       .then(() => {
         setActiveAction(null);
         setPreviewAction(null);
-        setMaxHorizontalDrag(0);
       });
   }, [controls]);
 
   const snapToAction = useCallback(
     (direction: "delete" | "edit") => {
-      if ((direction === "edit" && !onEdit) || (direction === "delete" && !onRemove)) {
-        resetPosition();
-        return;
-      }
       setActiveAction(direction);
       setPreviewAction(direction);
       controls.start({
         x: direction === "delete" ? -ACTION_OFFSET : ACTION_OFFSET,
         opacity: 1,
-        transition: { type: "spring", stiffness: 520, damping: 42 },
+        transition: { type: "spring", stiffness: 500, damping: 40 },
       });
     },
-    [controls, onEdit, onRemove, resetPosition]
+    [controls]
   );
 
   const triggerDelete = useCallback(async () => {
@@ -86,7 +84,6 @@ const MemberProductCard = ({
     });
     onRemove(product.id);
     setPreviewAction(null);
-    setMaxHorizontalDrag(0);
   }, [controls, isRemoving, onRemove, product.id, resetPosition]);
 
   const handleDrag = useCallback(
@@ -95,35 +92,36 @@ const MemberProductCard = ({
         return;
       }
       const absX = Math.abs(info.offset.x);
-      if (absX > maxHorizontalDrag) {
-        setMaxHorizontalDrag(absX);
+      if (absX > maxHorizontalDragRef.current) {
+        maxHorizontalDragRef.current = absX;
       }
-      if (info.offset.x > 10 && onEdit) {
+      if (info.offset.x > 10) {
         setPreviewAction("edit");
-      } else if (info.offset.x < -10 && onRemove) {
+      } else if (info.offset.x < -10) {
         setPreviewAction("delete");
-      } else {
-        setPreviewAction(null);
       }
     },
-    [isRemoving, maxHorizontalDrag, onEdit, onRemove]
+    [isRemoving]
   );
 
   const handleDragEnd = useCallback(
     (_event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
       const { offset, velocity } = info;
       const swipe = offset.x + velocity.x * 50;
-      if (swipe <= -SWIPE_THRESHOLD && onRemove) {
+      const absOffset = Math.abs(offset.x);
+      if (absOffset > maxHorizontalDragRef.current) {
+        maxHorizontalDragRef.current = absOffset;
+      }
+      if (swipe <= -SWIPE_THRESHOLD) {
         snapToAction("delete");
-      } else if (swipe >= SWIPE_THRESHOLD && onEdit) {
+      } else if (swipe >= SWIPE_THRESHOLD) {
         snapToAction("edit");
       } else {
         resetPosition();
         setPreviewAction(null);
-        setMaxHorizontalDrag(0);
       }
     },
-    [onEdit, onRemove, resetPosition, snapToAction]
+    [resetPosition, snapToAction]
   );
 
   const handleDeleteClick = useCallback(
@@ -141,7 +139,6 @@ const MemberProductCard = ({
         onEdit(product);
       }
       resetPosition();
-      setMaxHorizontalDrag(0);
     },
     [onEdit, product, resetPosition]
   );
@@ -149,22 +146,38 @@ const MemberProductCard = ({
   const handleCardTap = useCallback(() => {
     if (activeAction) {
       resetPosition();
-      setMaxHorizontalDrag(0);
+      maxHorizontalDragRef.current = 0;
       return;
     }
     if (isRemoving) {
-      setMaxHorizontalDrag(0);
+      maxHorizontalDragRef.current = 0;
       return;
     }
-    if (maxHorizontalDrag > 6) {
-      setMaxHorizontalDrag(0);
+    if (maxHorizontalDragRef.current > 6) {
+      maxHorizontalDragRef.current = 0;
       return;
     }
     if (onEdit) {
       onEdit(product);
     }
-    setMaxHorizontalDrag(0);
-  }, [activeAction, isRemoving, maxHorizontalDrag, onEdit, product, resetPosition]);
+    maxHorizontalDragRef.current = 0;
+  }, [activeAction, isRemoving, onEdit, product, resetPosition]);
+
+  const handleClickCapture: ReactMouseEventHandler<HTMLDivElement> =
+    useCallback(
+      (event) => {
+        if (
+          activeAction ||
+          previewAction ||
+          isRemoving ||
+          maxHorizontalDragRef.current > 6
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      },
+      [activeAction, previewAction, isRemoving]
+    );
 
   const currentAction = previewAction ?? activeAction;
   const showEditAction = currentAction === "edit";
@@ -210,21 +223,22 @@ const MemberProductCard = ({
           ) : null}
         </div>
       ) : null}
-      <motion.article
+      <motion.div
         drag={isRemoving ? false : "x"}
         dragConstraints={{ left: -160, right: 160 }}
         dragElastic={0.2}
         dragMomentum={false}
         animate={controls}
         onDragStart={() => {
-          setMaxHorizontalDrag(0);
+          maxHorizontalDragRef.current = 0;
           controls.stop();
         }}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         onTap={handleCardTap}
+        onClickCapture={handleClickCapture}
         whileTap={{ scale: 1.03 }}
-        className={`relative z-10 flex flex-col gap-4 rounded-2xl border border-accent-2/40 bg-primary/85 p-4 text-contrast shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:items-start sm:justify-between md:p-5 ${className}`}
+        className={`relative z-10 flex w-full flex-col gap-4 rounded-2xl border border-accent-2/40 bg-primary/85 p-4 text-contrast shadow-md transition-[background-color,border-color] duration-200 sm:flex-row sm:items-start sm:justify-between md:p-5 ${className}`}
       >
         <div className="flex-1 space-y-3">
           <div className="space-y-1">
@@ -276,7 +290,7 @@ const MemberProductCard = ({
                 event.stopPropagation();
                 if (activeAction) {
                   resetPosition();
-                  setMaxHorizontalDrag(0);
+                  maxHorizontalDragRef.current = 0;
                   return;
                 }
                 onEdit(product);
@@ -299,7 +313,7 @@ const MemberProductCard = ({
             </button>
           ) : null}
         </div>
-      </motion.article>
+      </motion.div>
     </div>
   );
 };
