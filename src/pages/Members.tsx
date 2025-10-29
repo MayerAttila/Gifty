@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AnimatedList from "../components/ui/AnimatedList";
 import MemberCard, { type Member } from "../components/ui/MemberCard";
 import AddMemberPanel from "../components/ui/AddMemberPanel";
@@ -7,6 +8,7 @@ import {
   loadMembersFromStorage,
   saveMembersToStorage,
 } from "../utils/member-storage";
+import { buildMemberProductsPath } from "../utils/member-path";
 
 const ensureDateInstance = (value: Date | string): Date | null => {
   if (value instanceof Date) {
@@ -58,6 +60,7 @@ const Members = () => {
   const [members, setMembers] = useState<Member[]>(loadMembersFromStorage);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     saveMembersToStorage(members);
@@ -153,10 +156,17 @@ const Members = () => {
               className={`${isSelected ? " bg-primary" : ""}`}
               onDelete={() => handleDeleteMember(member.id)}
               onEdit={() => handleEditMember(member)}
+              onNavigate={() =>
+                navigate(
+                  buildMemberProductsPath({ id: member.id, name: member.name })
+                )
+              }
             />
           )}
           onItemSelect={(member) => {
-            console.log("Selected member:", member);
+            navigate(
+              buildMemberProductsPath({ id: member.id, name: member.name })
+            );
           }}
           className="flex-1 w-full text-contrast"
           scrollContainerClassName="min-h-[22rem] max-h-[68vh] sm:max-h-[72vh] lg:max-h-[78vh] 2xl:max-h-[82vh]"

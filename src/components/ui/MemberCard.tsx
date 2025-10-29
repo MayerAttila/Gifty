@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
@@ -11,6 +11,7 @@ interface MemberCardProps extends Member {
   className?: string;
   onDelete?: () => void;
   onEdit?: () => void;
+  onNavigate?: () => void;
 }
 
 const ACTION_OFFSET = 116;
@@ -25,6 +26,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
   className = "",
   onDelete,
   onEdit,
+  onNavigate,
 }) => {
   const controls = useAnimationControls();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -34,6 +36,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
   const [previewAction, setPreviewAction] = useState<"delete" | "edit" | null>(
     null
   );
+  const maxHorizontalDragRef = useRef(0);
 
   const resetPosition = useCallback(() => {
     void controls
@@ -83,6 +86,10 @@ const MemberCard: React.FC<MemberCardProps> = ({
     (_event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
       const { offset, velocity } = info;
       const swipe = offset.x + velocity.x * 50;
+      const absOffset = Math.abs(offset.x);
+      if (absOffset > maxHorizontalDragRef.current) {
+        maxHorizontalDragRef.current = absOffset;
+      }
       if (swipe <= -SWIPE_THRESHOLD) {
         snapToAction("delete");
       } else if (swipe >= SWIPE_THRESHOLD) {
@@ -247,6 +254,10 @@ const MemberCard: React.FC<MemberCardProps> = ({
       if (isDeleting) {
         return;
       }
+      const absOffset = Math.abs(info.offset.x);
+      if (absOffset > maxHorizontalDragRef.current) {
+        maxHorizontalDragRef.current = absOffset;
+      }
       if (info.offset.x > 10) {
         setPreviewAction("edit");
       } else if (info.offset.x < -10) {
@@ -255,6 +266,42 @@ const MemberCard: React.FC<MemberCardProps> = ({
     },
     [isDeleting]
   );
+
+  const handleCardTap = useCallback(() => {
+    if (activeAction) {
+      resetPosition();
+      maxHorizontalDragRef.current = 0;
+      return;
+    }
+    if (isDeleting) {
+      maxHorizontalDragRef.current = 0;
+      return;
+    }
+    if (maxHorizontalDragRef.current > 6) {
+      maxHorizontalDragRef.current = 0;
+      return;
+    }
+    if (onNavigate) {
+      onNavigate();
+    }
+    maxHorizontalDragRef.current = 0;
+  }, [activeAction, isDeleting, onNavigate, resetPosition]);
+
+  const handleClickCapture: React.MouseEventHandler<HTMLDivElement> =
+    useCallback(
+      (event) => {
+        if (
+          activeAction ||
+          previewAction ||
+          isDeleting ||
+          maxHorizontalDragRef.current > 6
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      },
+      [activeAction, previewAction, isDeleting]
+    );
 
   return (
     <div className="relative w-full select-none overflow-hidden rounded-xl">
@@ -303,15 +350,13 @@ const MemberCard: React.FC<MemberCardProps> = ({
         dragMomentum={false}
         animate={controls}
         onDragStart={() => {
+          maxHorizontalDragRef.current = 0;
           controls.stop();
         }}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        onTap={() => {
-          if (activeAction) {
-            resetPosition();
-          }
-        }}
+        onTap={handleCardTap}
+        onClickCapture={handleClickCapture}
         whileTap={{ scale: 1.03 }}
         className={`relative z-10 flex w-full flex-col gap-4 rounded-xl ${genderTone.background} bg-primary p-5 text-contrast shadow-md transition-[background-color,border-color] duration-200 ${className}`}
       >
