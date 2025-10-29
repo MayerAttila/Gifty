@@ -13,6 +13,7 @@ type MemberProductCardProps = {
   onRemove?: (id: string) => void;
   onEdit?: (product: MemberProduct) => void;
   className?: string;
+  toneIndex?: number;
 };
 
 const formatDate = (iso: string) => {
@@ -31,6 +32,7 @@ const MemberProductCard = ({
   onRemove,
   onEdit,
   className = "",
+  toneIndex = 0,
 }: MemberProductCardProps) => {
   const controls = useAnimationControls();
   const [isRemoving, setIsRemoving] = useState(false);
@@ -184,7 +186,10 @@ const MemberProductCard = ({
   const showDeleteAction = currentAction === "delete";
   const overlayPointerClass =
     activeAction !== null ? "pointer-events-auto" : "pointer-events-none";
-
+  const tone =
+    toneIndex % 2 === 0
+      ? "bg-gradient-to-br from-brand/20 via-primary to-brand/20"
+      : "bg-gradient-to-br from-accent-2/10 via-brand/20 to-accent-1/10";
   return (
     <div className="relative w-full select-none overflow-hidden rounded-2xl">
       {currentAction ? (
@@ -238,7 +243,7 @@ const MemberProductCard = ({
         onTap={handleCardTap}
         onClickCapture={handleClickCapture}
         whileTap={{ scale: 1.03 }}
-        className={`relative z-10 flex w-full flex-col gap-4 rounded-2xl border border-accent-2/40 bg-primary/85 p-4 text-contrast shadow-md transition-[background-color,border-color] duration-200 sm:flex-row sm:items-start sm:justify-between md:p-5 ${className}`}
+        className={`relative z-10 flex w-full flex-col gap-4 rounded-2xl border border-accent-2/40 ${tone} bg-primary p-4 text-contrast shadow-md transition-[background-color,border-color] duration-200 sm:flex-row sm:items-start sm:justify-between md:p-5 ${className}`}
       >
         <div className="flex-1 space-y-3">
           <div className="space-y-1">
@@ -248,7 +253,9 @@ const MemberProductCard = ({
             <div className="flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-contrast/60">
               <span>Added {formatDate(product.createdAt)}</span>
               {product.priceDisplay ? (
-                <span className="rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-brand">
+                <span
+                  className={`rounded-full border px-3 py-1 border-brand/40 bg-brand/10 text-brand`}
+                >
                   {product.priceDisplay}
                 </span>
               ) : null}

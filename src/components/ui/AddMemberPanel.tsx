@@ -403,7 +403,7 @@ const AddMemberPanel: React.FC<AddMemberPanelProps> = ({
             }}
             drag={isMobile ? "y" : false}
             dragConstraints={dragConstraints}
-            dragElastic={isMobile ? 0.35 : 0}
+            dragElastic={isMobile ? { top: 0, bottom: 0.35 } : 0}
             dragMomentum={false}
             dragControls={dragControls}
             dragListener={false}

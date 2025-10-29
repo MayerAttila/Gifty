@@ -131,6 +131,18 @@ const MemberProducts = () => {
     return Number.isFinite(sum) ? sum : null;
   }, [memberProducts]);
 
+  const scheduleSave = useCallback((next: MemberProduct[]) => {
+    if (typeof queueMicrotask === "function") {
+      queueMicrotask(() => {
+        saveMemberProductsToStorage(next);
+      });
+    } else {
+      void Promise.resolve().then(() => {
+        saveMemberProductsToStorage(next);
+      });
+    }
+  }, []);
+
   const handleClosePanel = useCallback(() => {
     setIsPanelOpen(false);
     setEditingProduct(null);
@@ -140,14 +152,14 @@ const MemberProducts = () => {
     (productId: string) => {
       setProducts((prev) => {
         const next = prev.filter((product) => product.id !== productId);
-        saveMemberProductsToStorage(next);
+        scheduleSave(next);
         return next;
       });
       if (editingProduct && editingProduct.id === productId) {
         handleClosePanel();
       }
     },
-    [editingProduct, handleClosePanel]
+    [editingProduct, handleClosePanel, scheduleSave]
   );
 
   const handleEditProduct = useCallback((product: MemberProduct) => {
@@ -176,21 +188,21 @@ const MemberProducts = () => {
               ? applyFieldsToProduct(product, fields, updatedAt)
               : product
           );
-          saveMemberProductsToStorage(next);
+          scheduleSave(next);
           return next;
         });
       } else {
         const newProduct = createProductFromForm(member.id, values);
         setProducts((prev) => {
-          const next = [...prev, newProduct];
-          saveMemberProductsToStorage(next);
+          const next = [...prev.filter((product) => product.id !== newProduct.id), newProduct];
+          scheduleSave(next);
           return next;
         });
       }
 
       handleClosePanel();
     },
-    [editingProduct, member, handleClosePanel]
+    [editingProduct, member, handleClosePanel, scheduleSave]
   );
 
   const openCreatePanel = useCallback(() => {
@@ -229,11 +241,12 @@ const MemberProducts = () => {
             items={memberProducts}
             showGradients={false}
             getItemKey={(product) => product.id}
-            renderItem={(product, _index) => (
+            renderItem={(product, index) => (
               <MemberProductCard
                 product={product}
                 onRemove={handleDeleteProduct}
                 onEdit={handleEditProduct}
+                toneIndex={index}
               />
             )}
             onItemSelect={(product) => handleEditProduct(product)}

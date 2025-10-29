@@ -187,7 +187,7 @@ const AddProductPanel = ({
           transition={{ duration: 0.18, ease: "easeOut" }}
         >
           <motion.div
-            className="absolute inset-0 bg-slate-950/65 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/40"
             role="presentation"
             onClick={handleBackdropClick}
             initial={{ opacity: 0 }}
@@ -205,7 +205,7 @@ const AddProductPanel = ({
             transition={{ type: "spring", stiffness: 320, damping: 36 }}
             drag={isMobile ? "y" : false}
             dragConstraints={dragConstraints}
-            dragElastic={isMobile ? 0.35 : 0}
+            dragElastic={isMobile ? { top: 0, bottom: 0.35 } : 0}
             dragMomentum={false}
             dragControls={dragControls}
             dragListener={false}
