@@ -101,26 +101,43 @@ export const saveMemberProductsToStorage = (products: MemberProduct[]) => {
   window.dispatchEvent(new Event(MEMBER_PRODUCTS_UPDATED_EVENT));
 };
 
+const parsePriceValue = (raw: string): number | undefined => {
+  if (!raw) {
+    return undefined;
+  }
+  const normalized = Number.parseFloat(
+    raw.replace(/[^0-9.,]/g, "").replace(",", ".")
+  );
+  return Number.isNaN(normalized) ? undefined : normalized;
+};
+
+export const mapFormValuesToProductFields = (
+  values: MemberProductFormValues
+): Pick<
+  MemberProduct,
+  "name" | "url" | "notes" | "priceDisplay" | "priceValue"
+> => {
+  const trimmedName = values.name.trim();
+  const trimmedUrl = values.url.trim();
+  const trimmedNotes = values.notes.trim();
+  const trimmedPrice = values.price.trim();
+  const priceValue = parsePriceValue(trimmedPrice);
+
+  return {
+    name: trimmedName,
+    url: trimmedUrl || undefined,
+    notes: trimmedNotes || undefined,
+    priceDisplay: trimmedPrice || undefined,
+    priceValue,
+  };
+};
+
 export const createProductFromForm = (
   memberId: number,
   values: MemberProductFormValues
 ): MemberProduct => {
   const now = new Date().toISOString();
-
-  const trimmedName = values.name.trim();
-  const trimmedUrl = values.url.trim();
-  const trimmedNotes = values.notes.trim();
-  const trimmedPrice = values.price.trim();
-
-  let priceValue: number | undefined;
-  if (trimmedPrice) {
-    const normalized = Number.parseFloat(
-      trimmedPrice.replace(/[^0-9.,]/g, "").replace(",", ".")
-    );
-    if (!Number.isNaN(normalized)) {
-      priceValue = normalized;
-    }
-  }
+  const fields = mapFormValuesToProductFields(values);
 
   const cryptoApi = typeof globalThis !== "undefined" ? globalThis.crypto : null;
 
@@ -129,14 +146,25 @@ export const createProductFromForm = (
       ? cryptoApi.randomUUID()
       : `mp-${Date.now()}-${Math.round(Math.random() * 10_000)}`;
 
-  return {
+  const product: MemberProduct = {
     id,
     memberId,
-    name: trimmedName,
     createdAt: now,
-    ...(trimmedUrl ? { url: trimmedUrl } : {}),
-    ...(trimmedNotes ? { notes: trimmedNotes } : {}),
-    ...(trimmedPrice ? { priceDisplay: trimmedPrice } : {}),
-    ...(priceValue != null ? { priceValue } : {}),
+    name: fields.name,
   };
+
+  if (fields.url) {
+    product.url = fields.url;
+  }
+  if (fields.notes) {
+    product.notes = fields.notes;
+  }
+  if (fields.priceDisplay) {
+    product.priceDisplay = fields.priceDisplay;
+  }
+  if (fields.priceValue !== undefined) {
+    product.priceValue = fields.priceValue;
+  }
+
+  return product;
 };
