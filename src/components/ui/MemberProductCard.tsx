@@ -244,18 +244,22 @@ const MemberProductCard = ({
         onTap={handleCardTap}
         onClickCapture={handleClickCapture}
         whileTap={{ scale: 1.03 }}
-        className={`relative z-10 flex w-full flex-col gap-4 rounded-2xl border border-accent-2/40 ${tone} bg-primary p-4 text-contrast shadow-md transition-[background-color,border-color] duration-200 sm:flex-row sm:items-start sm:justify-between md:p-5 ${className}`}
+        className={`relative z-10 flex w-full flex-col gap-4 rounded-xl border border-accent-2/40 ${tone} bg-primary p-5 text-contrast shadow-md transition-[background-color,border-color] duration-200 ${className}`}
       >
         <div className="flex-1 space-y-3">
           <div className="space-y-1">
-            <h3 className="text-base font-semibold text-contrast sm:text-lg">
-              {product.name}
-            </h3>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-xl font-semibold text-contrast">
+                {product.name}
+              </h3>
+              <ProductPriceBadge
+                priceDisplay={product.priceDisplay}
+                priceValue={product.priceValue}
+              />
+            </div>
+
             <div className="flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-contrast/60">
               <span>Added {formatDate(product.createdAt)}</span>
-              {product.priceDisplay ? (
-                <ProductPriceBadge priceDisplay={product.priceDisplay} />
-              ) : null}
             </div>
           </div>
           {product.notes ? (

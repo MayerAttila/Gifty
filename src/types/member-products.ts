@@ -4,7 +4,7 @@ export type MemberProduct = {
   name: string;
   url?: string;
   priceValue?: number;
-  priceDisplay?: string;
+  priceDisplay: string;
   notes?: string;
   createdAt: string;
   updatedAt?: string;
