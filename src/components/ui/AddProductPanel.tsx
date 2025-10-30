@@ -51,6 +51,7 @@ const AddProductPanel = ({
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const priceInputRef = useRef<HTMLInputElement | null>(null);
   const dragControls = useDragControls();
 
   useEffect(() => {
@@ -127,12 +128,19 @@ const AddProductPanel = ({
     const trimmedName = formState.name.trim();
     if (!trimmedName) {
       setError("Please give the product a name.");
+      nameInputRef.current?.focus();
+      return;
+    }
+    const trimmedPrice = formState.price.trim();
+    if (!trimmedPrice) {
+      setError("Please set a target price.");
+      priceInputRef.current?.focus();
       return;
     }
     onSubmit({
       name: trimmedName,
       url: formState.url.trim(),
-      price: formState.price.trim(),
+      price: trimmedPrice,
       notes: formState.notes.trim(),
     });
   };
@@ -259,11 +267,13 @@ const AddProductPanel = ({
               <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.3em] text-contrast/80">
                 Target price
                 <input
+                  ref={priceInputRef}
                   name="price"
                   value={formState.price}
                   onChange={handleFieldChange}
                   placeholder="e.g. 49.99"
                   className="rounded-xl border border-accent-2/60 bg-primary px-3 py-2 text-sm text-contrast shadow-sm focus:border-brand/70 focus:outline-none focus:ring-2 focus:ring-brand/50"
+                  required
                 />
               </label>
 

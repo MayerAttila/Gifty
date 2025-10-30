@@ -7,6 +7,7 @@ import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import type { MemberProduct } from "../../types/member-products";
+import ProductPriceBadge from "./ProductPriceBadge";
 
 type MemberProductCardProps = {
   product: MemberProduct;
@@ -253,11 +254,7 @@ const MemberProductCard = ({
             <div className="flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-contrast/60">
               <span>Added {formatDate(product.createdAt)}</span>
               {product.priceDisplay ? (
-                <span
-                  className={`rounded-full border px-3 py-1 border-brand/40 bg-brand/10 text-brand`}
-                >
-                  {product.priceDisplay}
-                </span>
+                <ProductPriceBadge priceDisplay={product.priceDisplay} />
               ) : null}
             </div>
           </div>
