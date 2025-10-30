@@ -4,11 +4,16 @@ import AnimatedList from "../components/ui/AnimatedList";
 import MemberCard, { type Member } from "../components/ui/MemberCard";
 import AddMemberPanel from "../components/ui/AddMemberPanel";
 import type { AddMemberFormValues } from "../types/add-member";
+import type { MemberProduct } from "../types/member-products";
 import {
   loadMembersFromStorage,
   saveMembersToStorage,
 } from "../utils/member-storage";
 import { buildMemberProductsPath } from "../utils/member-path";
+import {
+  MEMBER_PRODUCTS_UPDATED_EVENT,
+  loadMemberProductsFromStorage,
+} from "../utils/member-product-storage";
 
 const ensureDateInstance = (value: Date | string): Date | null => {
   if (value instanceof Date) {
@@ -58,6 +63,9 @@ const normalizeSpecialDatesFromForm = (
 
 const Members = () => {
   const [members, setMembers] = useState<Member[]>(loadMembersFromStorage);
+  const [memberProducts, setMemberProducts] = useState<MemberProduct[]>(
+    loadMemberProductsFromStorage
+  );
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const navigate = useNavigate();
@@ -65,6 +73,30 @@ const Members = () => {
   useEffect(() => {
     saveMembersToStorage(members);
   }, [members]);
+
+  useEffect(() => {
+    const handleProductsUpdate = () => {
+      setMemberProducts(loadMemberProductsFromStorage());
+    };
+    window.addEventListener(
+      MEMBER_PRODUCTS_UPDATED_EVENT,
+      handleProductsUpdate
+    );
+    return () => {
+      window.removeEventListener(
+        MEMBER_PRODUCTS_UPDATED_EVENT,
+        handleProductsUpdate
+      );
+    };
+  }, []);
+
+  const productCounts = useMemo(() => {
+    const map = new Map<number, number>();
+    memberProducts.forEach((product) => {
+      map.set(product.memberId, (map.get(product.memberId) ?? 0) + 1);
+    });
+    return map;
+  }, [memberProducts]);
 
   const nextMemberId = useMemo(() => {
     if (!members.length) {
@@ -161,6 +193,7 @@ const Members = () => {
                   buildMemberProductsPath({ id: member.id, name: member.name })
                 )
               }
+              productCount={productCounts.get(member.id) ?? 0}
             />
           )}
           onItemSelect={(member) => {

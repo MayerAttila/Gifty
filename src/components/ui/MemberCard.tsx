@@ -2,6 +2,8 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { PanInfo } from "motion/react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import MemberProductBadge from "./MemberProductBadge";
+import MemberConnectionBadge from "./MemberConnectionBadge";
 import type { Member } from "../../types/add-member";
 import OccasionDate from "./OccasionDate";
 import AnimatedList from "./AnimatedList";
@@ -12,6 +14,7 @@ interface MemberCardProps extends Member {
   onDelete?: () => void;
   onEdit?: () => void;
   onNavigate?: () => void;
+  productCount?: number;
 }
 
 const ACTION_OFFSET = 116;
@@ -27,6 +30,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
   onDelete,
   onEdit,
   onNavigate,
+  productCount = 0,
 }) => {
   const controls = useAnimationControls();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -214,14 +218,14 @@ const MemberCard: React.FC<MemberCardProps> = ({
     switch (normalized) {
       case "male":
         return {
-          background: "bg-gradient-to-br from-brand/20 via-primary to-brand/20",
+          background: "bg-gradient-to-bl from-brand/20 via-primary to-brand/20",
           accent: "text-accent-2",
           badge: "border-brand/40 bg-brand/10 text-brand",
         };
       case "female":
         return {
           background:
-            "bg-gradient-to-br from-accent-2/10 via-brand/20 to-accent-1/10",
+            "bg-gradient-to-bl from-accent-2/10 via-brand/20 to-accent-1/10",
           accent: "text-brand",
           badge: "border-brand/40 bg-brand/10 text-brand",
         };
@@ -361,15 +365,17 @@ const MemberCard: React.FC<MemberCardProps> = ({
         className={`relative z-10 flex w-full flex-col gap-4 rounded-xl ${genderTone.background} bg-primary p-5 text-contrast shadow-md transition-[background-color,border-color] duration-200 ${className}`}
       >
         <span className="sr-only">Gender: {genderLabel}</span>
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl font-semibold text-contrast">{name}</h2>
-          {connection ? (
-            <span
-              className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm ${genderTone.badge}`}
-            >
-              {connection}
-            </span>
-          ) : null}
+          <div className="flex items-center gap-1">
+            {connection ? (
+              <MemberConnectionBadge
+                label={connection}
+                badgeClassName={genderTone.badge}
+              />
+            ) : null}
+            {productCount > 0 && <MemberProductBadge count={productCount} />}
+          </div>
         </div>
 
         {sortedOccasions.length > 0 && (

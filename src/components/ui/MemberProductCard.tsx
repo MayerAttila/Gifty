@@ -188,8 +188,8 @@ const MemberProductCard = ({
     activeAction !== null ? "pointer-events-auto" : "pointer-events-none";
   const tone =
     toneIndex % 2 === 0
-      ? "bg-gradient-to-br from-brand/20 via-primary to-brand/20"
-      : "bg-gradient-to-br from-accent-2/10 via-brand/20 to-accent-1/10";
+      ? "bg-gradient-to-bl from-brand/20 via-primary to-brand/20"
+      : "bg-gradient-to-bl from-accent-2/10 via-brand/20 to-accent-1/10";
   return (
     <div className="relative w-full select-none overflow-hidden rounded-2xl">
       {currentAction ? (
