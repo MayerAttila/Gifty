@@ -194,7 +194,10 @@ const MemberProducts = () => {
       } else {
         const newProduct = createProductFromForm(member.id, values);
         setProducts((prev) => {
-          const next = [...prev.filter((product) => product.id !== newProduct.id), newProduct];
+          const next = [
+            ...prev.filter((product) => product.id !== newProduct.id),
+            newProduct,
+          ];
           scheduleSave(next);
           return next;
         });
@@ -227,46 +230,53 @@ const MemberProducts = () => {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8 text-contrast">
-        <button
-          type="button"
-          onClick={() => navigate("/Members")}
-          className="self-start rounded-full border border-brand/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-brand shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary"
-        >
-          Members
-        </button>
+      <div className="flex min-h-[calc(98dvh-8rem)] flex-col gap-6 text-contrast">
+        <div className="flex items-center justify-end gap-3 px-3 pt-4 sm:justify-between">
+          <button
+            type="button"
+            onClick={() => navigate("/Members")}
+            className="hidden rounded-full border border-brand/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-brand shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary sm:inline-flex"
+          >
+            Members
+          </button>
+          {totalTrackedValue !== null ? (
+            <span className="rounded-full border border-accent-2/40 bg-primary/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-contrast/80 shadow-sm">
+              Total&nbsp;${totalTrackedValue.toFixed(2)}
+            </span>
+          ) : null}
+        </div>
 
-        <div className="flex min-h-[calc(98dvh-8rem)] flex-col gap-6">
-          <AnimatedList<MemberProduct>
-            items={memberProducts}
-            showGradients={false}
-            getItemKey={(product) => product.id}
-            renderItem={(product, index) => (
-              <MemberProductCard
-                product={product}
-                onRemove={handleDeleteProduct}
-                onEdit={handleEditProduct}
-                toneIndex={index}
-              />
-            )}
-            onItemSelect={(product) => handleEditProduct(product)}
-            className="flex-1 w-full text-contrast"
-            scrollContainerClassName="min-h-[22rem] max-h-[68vh] sm:max-h-[72vh] lg:max-h-[78vh] 2xl:max-h-[82vh]"
-          />
-          {memberProducts.length === 0 ? (
+        <AnimatedList<MemberProduct>
+          items={memberProducts}
+          showGradients={false}
+          getItemKey={(product) => product.id}
+          renderItem={(product, index) => (
+            <MemberProductCard
+              product={product}
+              onRemove={handleDeleteProduct}
+              onEdit={handleEditProduct}
+              toneIndex={index}
+            />
+          )}
+          onItemSelect={(product) => handleEditProduct(product)}
+          className="flex-1 w-full text-contrast"
+          scrollContainerClassName="min-h-[22rem] max-h-[68vh] sm:max-h-[72vh] lg:max-h-[78vh] 2xl:max-h-[82vh]"
+        />
+        {memberProducts.length === 0 ? (
+          <div className="px-3">
             <p className="rounded-2xl border border-accent-2/50 bg-primary/70 px-4 py-5 text-sm text-contrast/70 shadow-sm">
               You haven&apos;t saved any products for {member.name} yet. Tap
               &ldquo;Add Product&rdquo; to capture the first idea.
             </p>
-          ) : null}
-          <div className="mt-auto px-3 pb-3">
-            <button
-              onClick={openCreatePanel}
-              className="w-full rounded-xl border border-brand/70 bg-brand px-4 py-3 text-center font-semibold text-primary shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary"
-            >
-              Add Product
-            </button>
           </div>
+        ) : null}
+        <div className="mt-auto px-3 pb-3">
+          <button
+            onClick={openCreatePanel}
+            className="w-full rounded-xl border border-brand/70 bg-brand px-4 py-3 text-center font-semibold text-primary shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand/70 focus:ring-offset-2 focus:ring-offset-primary"
+          >
+            Add Product
+          </button>
         </div>
       </div>
 
